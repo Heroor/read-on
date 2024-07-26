@@ -7,13 +7,6 @@ settings:
 importers:
 
   .:
-    dependencies:
-      croner:
-        specifier: ^8.1.0
-        version: 8.1.0
-      tdesign-vue-next:
-        specifier: ^1.9.8
-        version: 1.9.8(vue@3.4.30(typescript@5.5.2))
     devDependencies:
       '@antfu/eslint-config':
         specifier: ^2.21.1
@@ -57,12 +50,18 @@ importers:
       chokidar:
         specifier: ^3.6.0
         version: 3.6.0
+      croner:
+        specifier: ^8.1.0
+        version: 8.1.0
       cross-env:
         specifier: ^7.0.3
         version: 7.0.3
       crx:
         specifier: ^5.0.1
         version: 5.0.1
+      dayjs:
+        specifier: ^1.11.12
+        version: 1.11.12
       eslint:
         specifier: ^9.5.0
         version: 9.5.0
@@ -90,6 +89,9 @@ importers:
       simple-git-hooks:
         specifier: ^2.11.1
         version: 2.11.1
+      tdesign-vue-next:
+        specifier: ^1.9.8
+        version: 1.9.8(vue@3.4.30(typescript@5.5.2))
       typescript:
         specifier: ^5.5.2
         version: 5.5.2
@@ -1671,6 +1673,9 @@ packages:
 
   dayjs@1.11.10:
     resolution: {integrity: sha512-vjAczensTgRcqDERK0SR2XMwsF/tSvnvlv6VcF2GIhg6Sx4yOIt/irsr1RDJsKiIyBzJDpCoXiWWq28MqH2cnQ==}
+
+  dayjs@1.11.12:
+    resolution: {integrity: sha512-Rt2g+nTbLlDWZTwwrIXjy9MeiZmSDI375FvZs72ngxx8PDC6YXOeR3q5LAuPzjZQxhiWdRKac7RKV+YyQYfYIg==}
 
   debounce@1.2.1:
     resolution: {integrity: sha512-XRRe6Glud4rd/ZGQfiV1ruXSfbvfJedlV9Y6zOlP+2K04vBYiJEte6stfFkCP03aMnY5tsipamumUjL14fofug==}
@@ -6173,6 +6178,8 @@ snapshots:
       whatwg-url: 14.0.0
 
   dayjs@1.11.10: {}
+
+  dayjs@1.11.12: {}
 
   debounce@1.2.1: {}
 

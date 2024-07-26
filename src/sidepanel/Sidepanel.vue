@@ -1,10 +1,7 @@
 <script setup lang="ts">
-import Cron from 'croner'
-import type { Job } from '../type'
+import { sendMessage } from 'webext-bridge/popup'
 import MarkItem from './MarkItem.vue'
-import { scheduledJobs, subscribeStorage } from '~/logic/storage'
-
-console.log(subscribeStorage)
+import { scheduleJobs } from '~/logic/storage'
 
 const mark = ref<any>([])
 
@@ -20,12 +17,12 @@ const jobType = ref('day')
 const week = ref(1)
 const day = ref(1)
 const time = ref('10:00')
-let cron: string = ''
 
 function submit() {
+  let cron: string = ''
   if (!time.value) {
-    cleanJobs(scheduledJobs.value)
-    scheduledJobs.value = []
+    scheduleJobs.value = []
+    sendMessage('schedule:clear', null)
     return
   }
   const [hour, min] = time.value.split(':')
@@ -39,21 +36,15 @@ function submit() {
     cron = `00 ${min} ${hour} ${day.value} * *`
   }
   else {
-    cleanJobs(scheduledJobs.value)
-    scheduledJobs.value = []
+    scheduleJobs.value = []
+    sendMessage('schedule:clear', null)
     return
   }
-  scheduledJobs.value = [{
+  scheduleJobs.value = [{
     cron,
     type: jobType.value,
   }]
-  console.log(cron)
-}
-
-function cleanJobs(jobs: Job[] = []) {
-  jobs.forEach((job) => {
-    job.cron.stop()
-  })
+  setTimeout(() => sendMessage('schedule:update', null), 0)
 }
 </script>
 

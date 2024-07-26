@@ -1,6 +1,9 @@
+import Cron from 'croner'
 import { onMessage, sendMessage } from 'webext-bridge/background'
-import type { Tabs } from 'webextension-polyfill'
+import type { Bookmark } from '~/type'
+import { remindTime, scheduleJobs, subscribeStorage } from '~/logic/storage'
 
+let jobs: Cron[] = []
 // only on dev mode
 if (import.meta.hot) {
   // @ts-expect-error for background HMR
@@ -9,57 +12,100 @@ if (import.meta.hot) {
   import('./contentScriptHMR')
 }
 
-// remove or turn this off if you don't use side panel
-const USE_SIDE_PANEL = true
-
-// to toggle the sidepanel with the action button in chromium:
-if (USE_SIDE_PANEL) {
-  // @ts-expect-error missing types
-  browser.sidePanel
-    .setPanelBehavior({ openPanelOnActionClick: true })
-    .catch((error: unknown) => console.error(error))
-}
+browser.sidePanel
+  .setPanelBehavior({ openPanelOnActionClick: true })
+  .catch(console.error)
 
 browser.runtime.onInstalled.addListener((): void => {
-  // eslint-disable-next-line no-console
-  console.log('Extension installed')
+  startJobs()
+  // For test
+  // getRandomBookmark()
 })
 
-let previousTabId = 0
+async function getRandomBookmark() {
+  const nodes = new Set<string>()
 
-// communication example: send previous tab title from background page
-// see shim.d.ts for type declaration
-browser.tabs.onActivated.addListener(async ({ tabId }) => {
-  if (!previousTabId) {
-    previousTabId = tabId
-    return
+  for (const sub of subscribeStorage.value) {
+    const tree = await browser.bookmarks.getSubTree(sub)
+    loop(tree[0])
   }
 
-  let tab: Tabs.Tab
+  function loop(tree: Bookmark) {
+    if (tree.url) {
+      nodes.add(tree.id!)
+    }
+    else {
+      tree.children?.forEach((c) => {
+        if (subscribeStorage.value.has(c.id!)) {
+          return
+        }
+        loop(c)
+      })
+    }
+  }
+  if (!nodes.size) {
+    return null
+  }
+  const index = Math.random() * nodes.size >> 0
+  const id = Array.from(nodes)[index]
+  const [node] = await browser.bookmarks.get(id)
+  const path = await getBookmarkPath(node)
 
+  return {
+    title: node.title,
+    url: node.url,
+    date: node.dateAdded,
+    path,
+  }
+}
+
+async function getBookmarkPath(node: Bookmark) {
+  const path = [node.title]
+  let parentId = node.parentId
+  while (parentId && parentId !== '1') {
+    const [parent] = await browser.bookmarks.get(parentId)
+    parentId = parent.parentId
+    path.unshift(parent.title)
+  }
+  return path
+}
+
+async function pushMessage(bookmark?: Bookmark) {
+  const tabs = await browser.tabs.query({ currentWindow: true, active: true })
+  if (tabs.length) {
+    const data = bookmark || await getRandomBookmark()
+    if (!data) {
+      return
+    }
+    sendMessage('subscribe:push', data, { context: 'content-script', tabId: tabs[0].id })
+  }
+}
+
+function startJobs() {
+  scheduleJobs.value.forEach((item) => {
+    jobs.push(Cron(item.cron, () => pushMessage()))
+  })
+}
+
+function clearJobs() {
+  jobs.forEach(job => job.stop())
+  jobs = []
+}
+
+onMessage('schedule:update', async () => {
   try {
-    tab = await browser.tabs.get(previousTabId)
-    previousTabId = tabId
+    clearJobs()
+    startJobs()
   }
-  catch {
-    return
+  catch (e) {
+    console.error(e)
   }
-
-  // eslint-disable-next-line no-console
-  console.log('previous tab', tab)
-  sendMessage('tab-prev', { title: tab.title }, { context: 'content-script', tabId })
 })
 
-onMessage('get-current-tab', async () => {
-  try {
-    const tab = await browser.tabs.get(previousTabId)
-    return {
-      title: tab?.title,
-    }
-  }
-  catch {
-    return {
-      title: undefined,
-    }
-  }
+onMessage('schedule:clear', async () => {
+  clearJobs()
+})
+
+onMessage('subscribe:remind', async ({ data }) => {
+  setTimeout(() => pushMessage(data), remindTime.value)
 })

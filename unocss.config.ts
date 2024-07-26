@@ -10,4 +10,18 @@ export default defineConfig({
   transformers: [
     transformerDirectives(),
   ],
+  rules: [
+    ['text-overflow-ellipsis', {
+      'overflow': 'hidden',
+      'text-overflow': 'ellipsis',
+      'white-space': 'nowrap',
+    }],
+    ['text-overflow-2-line', {
+      'display': '-webkit-box',
+      'overflow': 'hidden',
+      'text-overflow': 'ellipsis',
+      '-webkit-line-clamp': '2',
+      '-webkit-box-orient': 'vertical',
+    }],
+  ],
 })

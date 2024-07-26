@@ -8,11 +8,6 @@ import 'tdesign-vue-next/es/style/index.css'
 (() => {
   console.info('[webext] Hello content script')
 
-  // communication example: send previous tab title from background page
-  onMessage('tab-prev', ({ data }) => {
-    console.log(`[webext] Navigate from page "${data.title}"`)
-  })
-
   // mount component to context window
   const container = document.createElement('div')
   container.id = __NAME__
