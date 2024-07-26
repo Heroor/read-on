@@ -9,6 +9,7 @@ import IconsResolver from 'unplugin-icons/resolver'
 import Components from 'unplugin-vue-components/vite'
 import AutoImport from 'unplugin-auto-import/vite'
 import UnoCSS from 'unocss/vite'
+import { TDesignResolver } from 'unplugin-vue-components/resolvers'
 import { isDev, port, r } from './scripts/utils'
 import packageJson from './package.json'
 
@@ -31,11 +32,14 @@ export const sharedConfig: UserConfig = {
         'vue',
         {
           'webextension-polyfill': [
-            ['*', 'browser'],
+            ['default', 'browser'],
           ],
         },
       ],
       dts: r('src/auto-imports.d.ts'),
+      resolvers: [TDesignResolver({
+        library: 'vue-next',
+      })],
     }),
 
     // https://github.com/antfu/unplugin-vue-components
@@ -47,6 +51,9 @@ export const sharedConfig: UserConfig = {
         // auto import icons
         IconsResolver({
           prefix: '',
+        }),
+        TDesignResolver({
+          library: 'vue-next',
         }),
       ],
     }),
@@ -103,7 +110,6 @@ export default defineConfig(({ command }) => ({
     rollupOptions: {
       input: {
         options: r('src/options/index.html'),
-        popup: r('src/popup/index.html'),
         sidepanel: r('src/sidepanel/index.html'),
       },
     },

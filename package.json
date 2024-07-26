@@ -1,6 +1,6 @@
 {
-  "name": "vitesse-webext",
-  "displayName": "Vitesse WebExt",
+  "name": "continue-reading",
+  "displayName": "Continue Reading",
   "version": "0.0.1",
   "private": true,
   "packageManager": "pnpm@9.4.0",
@@ -25,8 +25,6 @@
     "start:firefox": "web-ext run --source-dir ./extension --target=firefox-desktop",
     "clear": "rimraf --glob extension/dist extension/manifest.json extension.*",
     "lint": "eslint --cache .",
-    "test": "vitest test",
-    "test:e2e": "playwright test",
     "postinstall": "simple-git-hooks",
     "typecheck": "tsc --noEmit"
   },
@@ -45,6 +43,7 @@
     "@vue/test-utils": "^2.4.6",
     "@vueuse/core": "^10.11.0",
     "chokidar": "^3.6.0",
+    "croner": "^8.1.0",
     "cross-env": "^7.0.3",
     "crx": "^5.0.1",
     "eslint": "^9.5.0",
@@ -56,6 +55,7 @@
     "npm-run-all": "^4.1.5",
     "rimraf": "^5.0.7",
     "simple-git-hooks": "^2.11.1",
+    "tdesign-vue-next": "^1.9.8",
     "typescript": "^5.5.2",
     "unocss": "^0.61.0",
     "unplugin-auto-import": "^0.17.6",
@@ -73,6 +73,6 @@
     "pre-commit": "pnpm lint-staged"
   },
   "lint-staged": {
-    "*": "eslint --fix"
+    "*": "eslint --fix --no-warn-ignored"
   }
 }

@@ -1,30 +1,35 @@
 <script setup lang="ts">
 import { useToggle } from '@vueuse/core'
+import { remindTime } from '~/logic/storage'
 import 'uno.css'
 
-const [show, toggle] = useToggle(false)
+console.log(getCurrentInstance())
+const [show, toggle] = useToggle(true)
+
+function remind() {
+  toggle(false)
+  setTimeout(() => {
+    toggle(true)
+  }, remindTime.value)
+}
 </script>
 
 <template>
-  <div class="fixed right-0 bottom-0 m-5 z-100 flex items-end font-sans select-none leading-1em">
-    <div
-      class="bg-white text-gray-800 rounded-lg shadow w-max h-min"
-      p="x-4 y-2"
-      m="y-auto r-2"
-      transition="opacity duration-300"
-      :class="show ? 'opacity-100' : 'opacity-0'"
+  <div>
+    <t-notification
+      v-if="show"
+      class="fixed top-5 right-5 z-2024" :icon="false" title="阅读时刻" content="这是一条消息通知" :duration="5000" @duration-end="toggle(false)"
     >
-      <h1 class="text-lg">
-        Vitesse WebExt
-      </h1>
-      <SharedSubtitle />
-    </div>
-    <button
-      class="flex w-10 h-10 rounded-full shadow cursor-pointer border-none"
-      bg="teal-600 hover:teal-700"
-      @click="toggle()"
-    >
-      <pixelarticons-power class="block m-auto text-white text-lg" />
-    </button>
+      <template #footer>
+        <div class="t-notification__detail">
+          <t-link theme="primary" class="mr-5" @click="toggle(false)">
+            取消
+          </t-link>
+          <t-link theme="primary" @click="remind">
+            稍后提醒
+          </t-link>
+        </div>
+      </template>
+    </t-notification>
   </div>
 </template>

@@ -20,7 +20,7 @@ export default defineConfig({
     outDir: r('extension/dist/contentScripts'),
     cssCodeSplit: false,
     emptyOutDir: false,
-    sourcemap: isDev ? 'inline' : false,
+    sourcemap: false, // isDev ? 'inline' : false,
     lib: {
       entry: r('src/contentScripts/index.ts'),
       name: packageJson.name,
