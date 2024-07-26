@@ -1,6 +1,6 @@
 {
-  "name": "continue-reading",
-  "displayName": "Continue Reading",
+  "name": "read-on",
+  "displayName": "Read on",
   "version": "0.0.1",
   "private": true,
   "packageManager": "pnpm@9.4.0",
