@@ -35,12 +35,13 @@ function unSubscribe(node: Bookmark) {
 <template>
   <div v-if="node && node.children">
     <div
-      class="flex leading-7 rounded hover:bg-light"
+      class="flex leading-7 rounded hover:bg-light px-10px py-2px"
       :style="{
-        paddingLeft: `${deep * 1}rem`,
+        paddingLeft: `${deep * 16 + 10}px`,
       }"
     >
       <span class="flex-1">
+        <material-symbols:folder-outline-rounded class="inline h16px vertical-text-bottom" />
         {{ node.title }}
       </span>
       <span>

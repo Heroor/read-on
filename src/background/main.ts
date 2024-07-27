@@ -1,5 +1,6 @@
 import Cron from 'croner'
 import { onMessage, sendMessage } from 'webext-bridge/background'
+import type { ArgumentType } from 'unocss/index'
 import type { Bookmark } from '~/type'
 import { remindTime, scheduleJobs, subscribeStorage } from '~/logic/storage'
 
@@ -46,14 +47,15 @@ async function getRandomBookmark() {
       })
     }
   }
-  if (!nodes.size) {
-    return null
-  }
   const newNodes = new Set(nodes)
   excludeBmIds.forEach((id) => {
     newNodes.delete(id)
   })
-  const index = Math.random() * nodes.size >> 0
+  if (!newNodes.size) {
+    sendToCurrentTab('subscribe:none', null)
+    return null
+  }
+  const index = Math.random() * newNodes.size >> 0
   const id = Array.from(newNodes)[index]
   const [node] = await browser.bookmarks.get(id)
   const path = await getBookmarkPath(node)
@@ -79,13 +81,19 @@ async function getBookmarkPath(node: Bookmark) {
 }
 
 async function pushSubscribe(bookmark?: Bookmark) {
+  const data = bookmark || await getRandomBookmark()
+  if (!data) {
+    return
+  }
+  sendToCurrentTab('subscribe:push', data as any)
+}
+
+type MessageData = ArgumentType<typeof sendMessage>[1]
+
+async function sendToCurrentTab(messageID: string, data: MessageData) {
   const tabs = await browser.tabs.query({ currentWindow: true, active: true })
   if (tabs.length) {
-    const data = bookmark || await getRandomBookmark()
-    if (!data) {
-      return
-    }
-    sendMessage('subscribe:push', data, { context: 'content-script', tabId: tabs[0].id })
+    sendMessage(messageID, data, { context: 'content-script', tabId: tabs[0].id })
   }
 }
 

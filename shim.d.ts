@@ -7,6 +7,7 @@ declare module 'webext-bridge' {
     // see https://github.com/antfu/webext-bridge#type-safe-protocols
     'get-current-tab': ProtocolWithReturn<{ tabId: number }, { title?: string }>
     'subscribe:push': Bookmark
+    'subscribe:none': null
     'subscribe:remind': Bookmark
     'subscribe:refresh': Bookmark
   }

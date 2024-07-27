@@ -20,7 +20,8 @@ const titles = [
 ].sort(() => Math.random() - 0.5)
 const { count: titleIndex, inc: incTitleIndex } = useCounter(0)
 const { count: duration, dec: decDuration, set: setDuration } = useCounter(15)
-const [show, toggle] = useToggle(!false)
+const [show, toggle] = useToggle(false)
+const [hasSubscribe, toggleHasSubscribe] = useToggle(true)
 const [animateEnable, toggleAnimateEnable] = useToggle(false)
 const bookmarkData = ref<Bookmark>({
   id: '99999',
@@ -48,6 +49,10 @@ onMessage('subscribe:push', async ({ data }) => {
   toggle(true)
   toggleAnimateEnable(true)
   closeNotification()
+})
+
+onMessage('subscribe:none', () => {
+  toggleHasSubscribe(false)
 })
 
 function closeNotification() {
@@ -78,7 +83,8 @@ function closeNotification() {
         <div class="flex-1">
           {{ titles[titleIndex % titles.length] }}
         </div>
-        <material-symbols-sync class="text-gray-500 hover:text-gray-700 active:text-gray-500 cursor-pointer select-none p-2px" @click="refresh" />
+        <material-symbols-sync v-if="hasSubscribe" class="text-gray-500 hover:text-gray-700 active:text-gray-500 cursor-pointer select-none p-2px" @click="refresh" />
+        <span v-else class="text-12px font-normal text-gray-400 select-none">没有更多了</span>
       </div>
     </template>
     <a

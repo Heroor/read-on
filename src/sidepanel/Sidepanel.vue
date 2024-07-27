@@ -16,7 +16,7 @@ const weekName = ['周一', '周二', '周三', '周四', '周五', '周六', '�
 const jobType = ref('day')
 const week = ref(1)
 const day = ref(1)
-const time = ref('10:00:00')
+const time = ref('10:00')
 
 function submit() {
   let cron: string = ''
@@ -63,7 +63,7 @@ function submit() {
       <t-select v-if="jobType === 'month'" v-model="day" class="w-80px inline-block" @change="submit">
         <t-option v-for="m in 31" :key="m" :label="`${m}日`" :value="m" />
       </t-select>
-      <t-time-picker v-if="jobType" v-model="time" placeholder="时间" class="w-80px inline-block" format="HH:mm" :steps="[1, 5]" @change="submit" />
+      <t-time-picker v-if="jobType" v-model="time" placeholder="时间" class="w-80px inline-block" format="HH:mm" :steps2="[1, 5]" @change="submit" />
     </div>
     <hr class="my-4">
     <MarkItem :node="mark" />
@@ -74,3 +74,9 @@ function submit() {
     </div> -->
   </main>
 </template>
+
+<style>
+.t-time-picker__panel {
+  width: 160px;
+}
+</style>
