@@ -90,7 +90,7 @@ function delayClose() {
       </div>
     </template>
     <a
-      :href="bookmarkData.url" target="__blank"
+      :href="bookmarkData.url" :target="`__blank${+new Date()}`"
       class="group block decoration-none rounded-8px bg-light-400 hover:bg-bluegray-100 px-14px pt-8px pb-10px duration-200"
       @click="toggle(false)"
     >

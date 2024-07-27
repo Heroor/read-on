@@ -94,7 +94,7 @@ function submit() {
       <a class="inline-block" href="https://github.com/Heroor/read-on">
         <mdi-github class="inline text-20px" />
         <div class="text-gray">
-          Read On.
+          Come On, Read On!
         </div>
       </a>
     </div>
