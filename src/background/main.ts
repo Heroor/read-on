@@ -4,6 +4,8 @@ import type { Bookmark } from '~/type'
 import { remindTime, scheduleJobs, subscribeStorage } from '~/logic/storage'
 
 let jobs: Cron[] = []
+const excludeBmIds = new Set<string>()
+
 // only on dev mode
 if (import.meta.hot) {
   // @ts-expect-error for background HMR
@@ -19,6 +21,7 @@ browser.sidePanel
 browser.runtime.onInstalled.addListener((): void => {
   startJobs()
   // For test
+  // console.log('For test')
   // getRandomBookmark()
 })
 
@@ -46,12 +49,17 @@ async function getRandomBookmark() {
   if (!nodes.size) {
     return null
   }
+  const newNodes = new Set(nodes)
+  excludeBmIds.forEach((id) => {
+    newNodes.delete(id)
+  })
   const index = Math.random() * nodes.size >> 0
-  const id = Array.from(nodes)[index]
+  const id = Array.from(newNodes)[index]
   const [node] = await browser.bookmarks.get(id)
   const path = await getBookmarkPath(node)
 
   return {
+    id: node.id,
     title: node.title,
     url: node.url,
     date: node.dateAdded,
@@ -70,7 +78,7 @@ async function getBookmarkPath(node: Bookmark) {
   return path
 }
 
-async function pushMessage(bookmark?: Bookmark) {
+async function pushSubscribe(bookmark?: Bookmark) {
   const tabs = await browser.tabs.query({ currentWindow: true, active: true })
   if (tabs.length) {
     const data = bookmark || await getRandomBookmark()
@@ -83,7 +91,10 @@ async function pushMessage(bookmark?: Bookmark) {
 
 function startJobs() {
   scheduleJobs.value.forEach((item) => {
-    jobs.push(Cron(item.cron, () => pushMessage()))
+    jobs.push(Cron(item.cron, () => {
+      excludeBmIds.clear()
+      pushSubscribe()
+    }))
   })
 }
 
@@ -107,5 +118,10 @@ onMessage('schedule:clear', async () => {
 })
 
 onMessage('subscribe:remind', async ({ data }) => {
-  setTimeout(() => pushMessage(data), remindTime.value)
+  setTimeout(() => pushSubscribe(data), remindTime.value)
+})
+
+onMessage('subscribe:refresh', async ({ data }) => {
+  excludeBmIds.add(data.id!)
+  pushSubscribe()
 })

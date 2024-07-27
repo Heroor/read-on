@@ -16,7 +16,7 @@ const weekName = ['周一', '周二', '周三', '周四', '周五', '周六', '�
 const jobType = ref('day')
 const week = ref(1)
 const day = ref(1)
-const time = ref('10:00')
+const time = ref('10:00:00')
 
 function submit() {
   let cron: string = ''
@@ -25,15 +25,15 @@ function submit() {
     sendMessage('schedule:clear', null)
     return
   }
-  const [hour, min] = time.value.split(':')
+  const [hour, min, sec = '00'] = time.value.split(':')
   if (jobType.value === 'day') {
-    cron = `00 ${min} ${hour} * * *`
+    cron = `${sec} ${min} ${hour} * * *`
   }
   else if (jobType.value === 'week' && week.value) {
-    cron = `00 ${min} ${hour} * * ${week.value}`
+    cron = `${sec} ${min} ${hour} * * ${week.value}`
   }
   else if (jobType.value === 'month' && day.value) {
-    cron = `00 ${min} ${hour} ${day.value} * *`
+    cron = `${sec} ${min} ${hour} ${day.value} * *`
   }
   else {
     scheduleJobs.value = []
