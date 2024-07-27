@@ -77,7 +77,7 @@ function delayClose() {
 <template>
   <t-notification
     v-if="show"
-    class="t-notification fixed top-10px right-10px z-2024 p-14px animate-back-in-right" :icon="false" :duration="duration * 1000" @duration-end="toggle(false)"
+    class="t-notification fixed top-10px right-10px z-92024 p-14px animate-back-in-right" :icon="false" :duration="duration * 1000" @duration-end="toggle(false)"
   >
     <template #title>
       <div class="flex items-center px-4px">

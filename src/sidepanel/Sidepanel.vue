@@ -52,18 +52,18 @@ function submit() {
   <main class="w-full px-4 py-5 text-gray-700 text-sm">
     <div class="flex items-center gap-1">
       <div>推送时间：</div>
-      <t-select v-model="jobType" class="w-80px" placeholder="周期" @change="submit">
+      <t-select v-model="jobType" class="!w-80px" placeholder="周期" @change="submit">
         <t-option key="day" label="每天" value="day" />
         <t-option key="week" label="每周" value="week" />
         <t-option key="month" label="每月" value="month" />
       </t-select>
-      <t-select v-if="jobType === 'week'" v-model="week" class="w-80px inline-block" @change="submit">
+      <t-select v-if="jobType === 'week'" v-model="week" class="!w-80px inline-block" @change="submit">
         <t-option v-for="m in 7" :key="m" :label="weekName[m - 1]" :value="m" />
       </t-select>
-      <t-select v-if="jobType === 'month'" v-model="day" class="w-80px inline-block" @change="submit">
+      <t-select v-if="jobType === 'month'" v-model="day" class="!w-80px inline-block" @change="submit">
         <t-option v-for="m in 31" :key="m" :label="`${m}日`" :value="m" />
       </t-select>
-      <t-time-picker v-if="jobType" v-model="time" placeholder="时间" class="w-80px inline-block" format="HH:mm" :steps2="[1, 5]" @change="submit" />
+      <t-time-picker v-if="jobType" v-model="time" placeholder="时间" class="!w-80px inline-block" format="HH:mm" :steps2="[1, 5]" @change="submit" />
     </div>
     <hr class="my-4">
     <MarkItem :node="mark" />
@@ -72,6 +72,15 @@ function submit() {
         Setting
       </button>
     </div> -->
+    <hr class="my-6">
+    <div class="text-center ">
+      <a class="inline-block" href="https://github.com/Heroor/read-on">
+        <mdi-github class="inline text-20px" />
+        <div class="text-gray">
+          Read On.
+        </div>
+      </a>
+    </div>
   </main>
 </template>
 
