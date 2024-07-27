@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { sendMessage } from 'webext-bridge/popup'
 import MarkItem from './MarkItem.vue'
-import { scheduleJobs } from '~/logic/storage'
+import { readScheduleJobs, scheduleJobs } from '~/logic/storage'
 
 const mark = ref<any>([])
 
@@ -18,7 +18,8 @@ const week = ref('1')
 const day = ref('1')
 const time = ref('10:00')
 
-onMounted(() => {
+onMounted(async () => {
+  await readScheduleJobs()
   const job = scheduleJobs.value[0]
   if (!job) {
     return

@@ -61,7 +61,7 @@ export function useWebExtensionStorage<T>(
   key: string,
   initialValue: MaybeRefOrGetter<T>,
   options: WebExtensionStorageOptions<T> = {},
-): RemovableRef<T> {
+): [RemovableRef<T>, Record<string, any>] {
   const {
     flush = 'pre',
     deep = true,
@@ -157,5 +157,5 @@ export function useWebExtensionStorage<T>(
     })
   }
 
-  return data as RemovableRef<T>
+  return [data as RemovableRef<T>, { read }]
 }
