@@ -19,21 +19,29 @@ const day = ref('1')
 const time = ref('10:00')
 
 onMounted(() => {
-  const { cron, type } = scheduleJobs.value[0]
+  const job = scheduleJobs.value[0]
+  if (!job) {
+    return
+  }
+  const { cron, type } = job
   jobType.value = type
   const [_s, m, h, d, _m, w] = cron.split(' ')
   if (type === 'day') {
-    time.value = `${h}:${m}`
+    time.value = `${formatTimeItem(h)}:${formatTimeItem(m)}`
   }
   else if (type === 'week') {
     week.value = w
-    time.value = `${h}:${m}`
+    time.value = `${formatTimeItem(h)}:${formatTimeItem(m)}`
   }
   else if (type === 'month') {
     day.value = d
-    time.value = `${h}:${m}`
+    time.value = `${formatTimeItem(h)}:${formatTimeItem(m)}`
   }
 })
+
+function formatTimeItem(val: string | number = 0) {
+  return (`0${String(val)}`).substr(-2)
+}
 
 function submit() {
   let cron: string = ''
@@ -44,13 +52,13 @@ function submit() {
   }
   const [hour, min, sec = '0'] = time.value.split(':')
   if (jobType.value === 'day') {
-    cron = `${sec} ${min} ${hour} * * *`
+    cron = `${+sec} ${+min} ${+hour} * * *`
   }
   else if (jobType.value === 'week' && week.value) {
-    cron = `${sec} ${min} ${hour} * * ${week.value}`
+    cron = `${+sec} ${+min} ${+hour} * * ${week.value}`
   }
   else if (jobType.value === 'month' && day.value) {
-    cron = `${sec} ${min} ${hour} ${day.value} * *`
+    cron = `${+sec} ${+min} ${+hour} ${day.value} * *`
   }
   else {
     scheduleJobs.value = []
