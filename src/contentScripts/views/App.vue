@@ -25,9 +25,9 @@ const [hasSubscribe, toggleHasSubscribe] = useToggle(true)
 const [animateEnable, toggleAnimateEnable] = useToggle(false)
 const bookmarkData = ref<Bookmark>({
   id: '99999',
-  title: 'This is page title',
-  url: 'https://www.example.com/a/b/c',
-  date: 1552215738764,
+  title: 'Continue reading your bookmarks.',
+  url: 'https://github.com/Heroor/read-on',
+  date: 1722072498173,
   path: [],
 })
 let timer: any
@@ -46,16 +46,17 @@ function refresh() {
 onMessage('subscribe:push', async ({ data }) => {
   Object.assign(bookmarkData.value, data)
   incTitleIndex()
-  toggle(true)
+  toggleHasSubscribe(true)
   toggleAnimateEnable(true)
-  closeNotification()
+  toggle(true)
+  delayClose()
 })
 
 onMessage('subscribe:none', () => {
   toggleHasSubscribe(false)
 })
 
-function closeNotification() {
+function delayClose() {
   clearTimeout(timer)
   setDuration(15)
   const loop = () => {
