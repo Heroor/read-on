@@ -5,6 +5,7 @@ import 'uno.css'
 import dayjs from 'dayjs'
 import type { Bookmark } from '~/type'
 
+const DURATION = 15
 const titles = [
   '👀 是时候回顾一下啦',
   '📖 阅读时刻到',
@@ -19,7 +20,7 @@ const titles = [
   '🚀 准备好飞向新的旅途了吗',
 ].sort(() => Math.random() - 0.5)
 const { count: titleIndex, inc: incTitleIndex } = useCounter(0)
-const { count: duration, dec: decDuration, set: setDuration } = useCounter(15)
+const { count: duration, dec: decDuration, set: setDuration } = useCounter(DURATION)
 const [show, toggle] = useToggle(false)
 const [hasSubscribe, toggleHasSubscribe] = useToggle(true)
 const [animateEnable, toggleAnimateEnable] = useToggle(false)
@@ -58,7 +59,7 @@ onMessage('subscribe:none', () => {
 
 function delayClose() {
   clearTimeout(timer)
-  setDuration(15)
+  setDuration(DURATION)
   const loop = () => {
     clearTimeout(timer)
     if (duration.value <= 0) {
@@ -77,7 +78,7 @@ function delayClose() {
 <template>
   <t-notification
     v-if="show"
-    class="t-notification fixed top-10px right-10px z-92024 p-14px animate-back-in-right" :icon="false" :duration="duration * 1000" @duration-end="toggle(false)"
+    class="t-notification fixed top-10px right-10px z-92024 p-14px animate-back-in-right" :icon="false" :duration="0" @duration-end="toggle(false)"
   >
     <template #title>
       <div class="flex items-center px-4px">

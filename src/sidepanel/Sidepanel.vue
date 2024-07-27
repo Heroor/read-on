@@ -14,9 +14,26 @@ browser.bookmarks.getSubTree('1').then((res: any) => {
 // }
 const weekName = ['周一', '周二', '周三', '周四', '周五', '周六', '周末']
 const jobType = ref('day')
-const week = ref(1)
-const day = ref(1)
+const week = ref('1')
+const day = ref('1')
 const time = ref('10:00')
+
+onMounted(() => {
+  const { cron, type } = scheduleJobs.value[0]
+  jobType.value = type
+  const [_s, m, h, d, _m, w] = cron.split(' ')
+  if (type === 'day') {
+    time.value = `${h}:${m}`
+  }
+  else if (type === 'week') {
+    week.value = w
+    time.value = `${h}:${m}`
+  }
+  else if (type === 'month') {
+    day.value = d
+    time.value = `${h}:${m}`
+  }
+})
 
 function submit() {
   let cron: string = ''
@@ -25,7 +42,7 @@ function submit() {
     sendMessage('schedule:clear', null)
     return
   }
-  const [hour, min, sec = '00'] = time.value.split(':')
+  const [hour, min, sec = '0'] = time.value.split(':')
   if (jobType.value === 'day') {
     cron = `${sec} ${min} ${hour} * * *`
   }
@@ -58,10 +75,10 @@ function submit() {
         <t-option key="month" label="每月" value="month" />
       </t-select>
       <t-select v-if="jobType === 'week'" v-model="week" class="!w-80px inline-block" @change="submit">
-        <t-option v-for="m in 7" :key="m" :label="weekName[m - 1]" :value="m" />
+        <t-option v-for="m in 7" :key="m" :label="weekName[m - 1]" :value="`${m}`" />
       </t-select>
       <t-select v-if="jobType === 'month'" v-model="day" class="!w-80px inline-block" @change="submit">
-        <t-option v-for="m in 31" :key="m" :label="`${m}日`" :value="m" />
+        <t-option v-for="m in 31" :key="m" :label="`${m}日`" :value="`${m}`" />
       </t-select>
       <t-time-picker v-if="jobType" v-model="time" placeholder="时间" class="!w-80px inline-block" format="HH:mm" :steps2="[1, 5]" @change="submit" />
     </div>
