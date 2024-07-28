@@ -16,7 +16,7 @@ Read on is a web extension that pulls all the folders from your bookmarks and di
 
 ## Screenshot
 
-![](./docs/screenshot.png)
+![](https://cdn.jsdelivr.net/gh/Heroor/read-on@main/docs/screenshot.png)
 
 ## Install
 
