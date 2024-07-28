@@ -1,4 +1,4 @@
-![](https://cdn.jsdelivr.net/gh/Heroor/read-on@main/docs/banner.png)
+![](https://cdn.jsdelivr.net/gh/Heroor/read-on@latest/docs/banner.png)
 
 # Read on
 
@@ -16,7 +16,7 @@ Read on is a web extension that pulls all the folders from your bookmarks and di
 
 ## Screenshot
 
-![](https://cdn.jsdelivr.net/gh/Heroor/read-on@main/docs/screenshot.png)
+![](https://cdn.jsdelivr.net/gh/Heroor/read-on@latest/docs/screenshot.png)
 
 ## Install
 
