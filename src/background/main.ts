@@ -2,7 +2,7 @@ import Cron from 'croner'
 import { onMessage, sendMessage } from 'webext-bridge/background'
 import type { ArgumentType } from 'unocss/index'
 import type { Bookmark } from '~/type'
-import { remindTime, scheduleJobs, subscribeStorage } from '~/logic/storage'
+import { readScheduleJobs, remindTime, scheduleJobs, subscribeStorage } from '~/logic/storage'
 
 let jobs: Cron[] = []
 const excludeBmIds = new Set<string>()
@@ -19,7 +19,8 @@ browser.sidePanel
   .setPanelBehavior({ openPanelOnActionClick: true })
   .catch(console.error)
 
-browser.runtime.onInstalled.addListener((): void => {
+browser.runtime.onInstalled.addListener(async () => {
+  await readScheduleJobs()
   startJobs()
   // For test
   // console.log('For test')
@@ -93,13 +94,18 @@ type MessageData = ArgumentType<typeof sendMessage>[1]
 async function sendToCurrentTab(messageID: string, data: MessageData) {
   const tabs = await browser.tabs.query({ currentWindow: true, active: true })
   if (tabs.length) {
+    console.log('Find active tab')
     sendMessage(messageID, data, { context: 'content-script', tabId: tabs[0].id })
+  }
+  else {
+    console.error('Can not find active tab')
   }
 }
 
 function startJobs() {
   scheduleJobs.value.forEach((item) => {
     jobs.push(Cron(item.cron, () => {
+      console.log('Job start!')
       excludeBmIds.clear()
       pushSubscribe()
     }))
