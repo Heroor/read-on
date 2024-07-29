@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { sendMessage } from 'webext-bridge/popup'
+import dayjs from 'dayjs'
 import MarkItem from './MarkItem.vue'
 import { readScheduleJobs, scheduleJobs } from '~/logic/storage'
 
@@ -9,96 +10,151 @@ browser.bookmarks.getSubTree('1').then((res: any) => {
   mark.value = res[0]
 })
 
-// function openOptionsPage() {
-//   browser.runtime.openOptionsPage()
-// }
+const editJobs = ref<{ type: string, week?: string, day?: string, time: string }[]>([])
 const weekName = ['周一', '周二', '周三', '周四', '周五', '周六', '周末']
-const jobType = ref('day')
-const week = ref('1')
-const day = ref('1')
-const time = ref('10:00')
+
+function defaultData() {
+  const weekDay = String(new Date().getDay())
+  return {
+    type: 'day',
+    week: weekDay === '0' ? '7' : weekDay,
+    day: String(new Date().getDate()),
+    time: dayjs().format('HH:mm'),
+  }
+}
 
 onMounted(async () => {
   await readScheduleJobs()
-  const job = scheduleJobs.value[0]
-  if (!job) {
-    return
-  }
-  const { cron, type } = job
-  jobType.value = type
-  const [_s, m, h, d, _m, w] = cron.split(' ')
-  if (type === 'day') {
-    time.value = `${formatTimeItem(h)}:${formatTimeItem(m)}`
-  }
-  else if (type === 'week') {
-    week.value = w
-    time.value = `${formatTimeItem(h)}:${formatTimeItem(m)}`
-  }
-  else if (type === 'month') {
-    day.value = d
-    time.value = `${formatTimeItem(h)}:${formatTimeItem(m)}`
-  }
+  editJobs.value = scheduleJobs.value.map((job) => {
+    if (!job) {
+      return null
+    }
+    const { cron, type } = job
+    const [_s, m, h, d, _m, w] = cron.split(' ')
+    if (type === 'day') {
+      return {
+        ...defaultData(),
+        type,
+        time: `${formatTimeItem(h)}:${formatTimeItem(m)}`,
+      }
+    }
+    else if (type === 'week') {
+      return {
+        ...defaultData(),
+        type,
+        week: w,
+        time: `${formatTimeItem(h)}:${formatTimeItem(m)}`,
+      }
+    }
+    else if (type === 'month') {
+      return {
+        ...defaultData(),
+        type,
+        day: d,
+        time: `${formatTimeItem(h)}:${formatTimeItem(m)}`,
+      }
+    }
+    return null
+  }).filter(item => !!item)
 })
 
 function formatTimeItem(val: string | number = 0) {
   return (`0${String(val)}`).substr(-2)
 }
 
+function addJob() {
+  editJobs.value.push({
+    ...defaultData(),
+  })
+  submit()
+}
+
+function removeJob(index: number) {
+  editJobs.value.splice(index, 1)
+  submit()
+}
+
 function submit() {
-  let cron: string = ''
-  if (!time.value) {
-    scheduleJobs.value = []
-    sendMessage('schedule:clear', null)
-    return
-  }
-  const [hour, min, sec = '0'] = time.value.split(':')
-  if (jobType.value === 'day') {
-    cron = `${+sec} ${+min} ${+hour} * * *`
-  }
-  else if (jobType.value === 'week' && week.value) {
-    cron = `${+sec} ${+min} ${+hour} * * ${week.value}`
-  }
-  else if (jobType.value === 'month' && day.value) {
-    cron = `${+sec} ${+min} ${+hour} ${day.value} * *`
-  }
-  else {
-    scheduleJobs.value = []
-    sendMessage('schedule:clear', null)
-    return
-  }
-  scheduleJobs.value = [{
-    cron,
-    type: jobType.value,
-  }]
-  setTimeout(() => sendMessage('schedule:update', null), 0)
+  scheduleJobs.value = editJobs.value.map(({ type, time, week, day }) => {
+    if (!time) {
+      return null
+    }
+    const [hour, min, sec = '0'] = time.split(':')
+    if (type === 'day') {
+      return {
+        type,
+        cron: `${+sec} ${+min} ${+hour} * * *`,
+      }
+    }
+    else if (type === 'week' && week) {
+      return {
+        type,
+        cron: `${+sec} ${+min} ${+hour} * * ${week}`,
+      }
+    }
+    else if (type === 'month' && day) {
+      return {
+        type,
+        cron: `${+sec} ${+min} ${+hour} ${day} * *`,
+      }
+    }
+    else {
+      return null
+    }
+  }).filter(item => !!item)
+  sendMessage('schedule:update', scheduleJobs.value)
 }
 </script>
 
 <template>
-  <main class="w-full px-4 py-5 text-gray-700 text-sm">
-    <div class="flex items-center gap-1">
-      <div>推送时间：</div>
-      <t-select v-model="jobType" class="!w-80px" placeholder="周期" @change="submit">
-        <t-option key="day" label="每天" value="day" />
-        <t-option key="week" label="每周" value="week" />
-        <t-option key="month" label="每月" value="month" />
-      </t-select>
-      <t-select v-if="jobType === 'week'" v-model="week" class="!w-80px inline-block" @change="submit">
-        <t-option v-for="m in 7" :key="m" :label="weekName[m - 1]" :value="`${m}`" />
-      </t-select>
-      <t-select v-if="jobType === 'month'" v-model="day" class="!w-80px inline-block" @change="submit">
-        <t-option v-for="m in 31" :key="m" :label="`${m}日`" :value="`${m}`" />
-      </t-select>
-      <t-time-picker v-if="jobType" v-model="time" placeholder="时间" class="!w-80px inline-block" format="HH:mm" :steps2="[1, 5]" @change="submit" />
-    </div>
+  <main class="w-full px-4 pt-4px pb-5 text-gray-700 text-sm">
+    <t-tabs :default-value="1" class="w-full">
+      <t-tab-panel :value="1" label="定时推送">
+        <div>
+          <div class="pt-15px select-none">
+            推送时间：
+          </div>
+          <div v-for="(item, index) in editJobs" :key="index" class="flex items-center gap-1 mt-2.5">
+            <material-symbols:do-not-disturb-on-rounded class="text-18px ml-1 text-[--td-brand-color] cursor-pointer hover:opacity-80" @click="removeJob(index)" />
+            <t-select v-model="item.type" class="!w-95px" placeholder="周期" @change="submit()">
+              <t-option key="day" label="每天" value="day" />
+              <t-option key="week" label="每周" value="week" />
+              <t-option key="month" label="每月" value="month" />
+            </t-select>
+            <t-select v-if="item.type === 'week'" v-model="item.week" class="!w-95px inline-block" @change="submit()">
+              <t-option v-for="m in 7" :key="m" :label="weekName[m - 1]" :value="`${m}`" />
+            </t-select>
+            <t-select v-if="item.type === 'month'" v-model="item.day" class="!w-95px inline-block" @change="submit()">
+              <t-option v-for="m in 31" :key="m" :label="`${m}日`" :value="`${m}`" />
+            </t-select>
+            <t-time-picker v-if="item.type" v-model="item.time" placeholder="时间" class="!w-95px inline-block" format="HH:mm" :steps2="[1, 5]" @change="submit()" />
+          </div>
+          <div class="h30px flex items-center mt-2.5">
+            <div class="flex items-center gap-1 cursor-pointer hover:opacity-80" @click="addJob">
+              <material-symbols:add-circle-rounded class="text-18px ml-1 mr-3px text-[--td-brand-color]" />
+              <span>添加订阅</span>
+            </div>
+          </div>
+        </div>
+        <!-- <div class="flex items-center gap-1 mt-3">
+          <div class="select-none">
+            稍后提醒间隔：
+          </div>
+          <t-input v-model="remindTime" max="60" min="1" :allow-input-over-limit="false" type="number" class="!w-95px" />
+          <t-select v-model="remindType" class="!w-95px" placeholder="周期">
+            <t-option key="sec" label="秒" value="sec" />
+            <t-option key="min" label="分钟" value="min" />
+            <t-option key="hour" label="小时" value="hour" />
+          </t-select>
+        </div> -->
+      </t-tab-panel>
+      <t-tab-panel :value="2" label="订阅书签">
+        <div class="pt-2">
+          <MarkItem :node="mark" />
+        </div>
+      </t-tab-panel>
+    </t-tabs>
     <hr class="my-4">
-    <MarkItem :node="mark" />
-    <!-- <div>
-      <button class="btn mt-2" @click="openOptionsPage">
-        Setting
-      </button>
-    </div> -->
-    <hr class="my-6">
     <div class="text-center ">
       <a class="inline-block" href="https://github.com/Heroor/read-on">
         <mdi-github class="inline text-20px" />
@@ -112,6 +168,9 @@ function submit() {
 
 <style>
 .t-time-picker__panel {
-  width: 160px;
+  width: 150px;
+}
+.t-time-picker__panel-section-footer {
+  padding: 10px 12px;
 }
 </style>

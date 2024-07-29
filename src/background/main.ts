@@ -1,7 +1,7 @@
 import Cron from 'croner'
 import { onMessage, sendMessage } from 'webext-bridge/background'
 import type { ArgumentType } from 'unocss/index'
-import type { Bookmark } from '~/type'
+import type { Bookmark, Job } from '~/type'
 import { readScheduleJobs, remindTime, scheduleJobs, subscribeStorage } from '~/logic/storage'
 
 let jobs: Cron[] = []
@@ -19,13 +19,17 @@ browser.sidePanel
   .setPanelBehavior({ openPanelOnActionClick: true })
   .catch(console.error)
 
-browser.runtime.onInstalled.addListener(async () => {
+browser.runtime.onInstalled.addListener(init)
+
+init()
+
+async function init() {
   await readScheduleJobs()
-  startJobs()
+  startJobs(scheduleJobs.value)
   // For test
   // console.log('For test')
   // getRandomBookmark()
-})
+}
 
 async function getRandomBookmark() {
   const nodes = new Set<string>()
@@ -102,8 +106,9 @@ async function sendToCurrentTab(messageID: string, data: MessageData) {
   }
 }
 
-function startJobs() {
-  scheduleJobs.value.forEach((item) => {
+function startJobs(scheduleJobs: Job[]) {
+  clearJobs()
+  scheduleJobs.forEach((item) => {
     jobs.push(Cron(item.cron, () => {
       console.log('Job start!')
       excludeBmIds.clear()
@@ -117,25 +122,15 @@ function clearJobs() {
   jobs = []
 }
 
-onMessage('schedule:update', async () => {
-  try {
-    clearJobs()
-    startJobs()
-  }
-  catch (e) {
-    console.error(e)
-  }
+onMessage('schedule:update', ({ data }) => {
+  startJobs(data)
 })
 
-onMessage('schedule:clear', async () => {
-  clearJobs()
-})
-
-onMessage('subscribe:remind', async ({ data }) => {
+onMessage('subscribe:remind', ({ data }) => {
   setTimeout(() => pushSubscribe(data), remindTime.value)
 })
 
-onMessage('subscribe:refresh', async ({ data }) => {
+onMessage('subscribe:refresh', ({ data }) => {
   excludeBmIds.add(data.id!)
   pushSubscribe()
 })

@@ -34,8 +34,12 @@ const bookmarkData = ref<Bookmark>({
 let timer: any
 
 function remind() {
-  toggle(false)
+  close()
   sendMessage('subscribe:remind', bookmarkData.value)
+}
+
+function close() {
+  toggle(false)
   clearTimeout(timer)
 }
 
@@ -78,7 +82,7 @@ function delayClose() {
 <template>
   <t-notification
     v-if="show"
-    class="t-notification fixed top-10px right-10px z-92024 p-14px animate-back-in-right" :icon="false" :duration="0" @duration-end="toggle(false)"
+    class="t-notification fixed top-10px right-10px z-92024 p-14px animate-back-in-right" :icon="false" :duration="0"
   >
     <template #title>
       <div class="flex items-center px-4px">
@@ -92,7 +96,7 @@ function delayClose() {
     <a
       :href="bookmarkData.url" :target="`__blank${+new Date()}`"
       class="group block decoration-none rounded-8px bg-light-400 hover:bg-bluegray-100 px-14px pt-8px pb-10px duration-200"
-      @click="toggle(false)"
+      @click="close"
     >
       <div class="flex text-gray-800 animate-duration-300" :class="{ 'animate-fade-in': animateEnable }">
         <div class="flex-1 text-overflow-ellipsis font-bold pr-2px">
@@ -109,8 +113,8 @@ function delayClose() {
         <div class="flex-1 text-12px text-gray-500 text-left">
           创建于：{{ dayjs(bookmarkData.date).format('YYYY/MM/DD') }}
         </div>
-        <t-link class="text-gray-500 !after:border-gray-500" @click="toggle(false)">
-          跳过({{ duration }}s)
+        <t-link class="text-gray-500 !after:border-gray-500" @click="close">
+          取消({{ duration }}s)
         </t-link>
         <t-link theme="primary" @click="remind">
           稍后提醒
