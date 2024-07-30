@@ -20,9 +20,9 @@ const titles = [
   '🧩 拼凑过去的记忆吧',
   '🚀 准备好飞向新的旅途了吗',
 ].sort(() => Math.random() - 0.5)
+const [show, toggle] = useToggle(false)
 const { count: titleIndex, inc: incTitleIndex } = useCounter(0)
 const { count: duration, dec: decDuration, set: setDuration } = useCounter(DURATION)
-const [show, toggle] = useToggle(false)
 const [hasSubscribe, toggleHasSubscribe] = useToggle(true)
 const [animateEnable, toggleAnimateEnable] = useToggle(false)
 const bookmarkData = ref<Bookmark>({
@@ -50,7 +50,8 @@ function refresh() {
 }
 
 onMessage('subscribe:push', async ({ data }) => {
-  Object.assign(bookmarkData.value, data)
+  bookmarkData.value = data
+  sendMessage('subscribe:check', data)
   incTitleIndex()
   toggleHasSubscribe(true)
   toggleAnimateEnable(true)
@@ -61,6 +62,12 @@ onMessage('subscribe:push', async ({ data }) => {
 
 onMessage('subscribe:none', () => {
   toggleHasSubscribe(false)
+})
+
+onMessage('subscribe:valid', ({ data }) => {
+  if (data.id === bookmarkData.value.id) {
+    bookmarkData.value.valid = data.valid
+  }
 })
 
 function saveHistory(bookmark: Bookmark) {
@@ -107,7 +114,8 @@ function delayClose() {
     </template>
     <a
       :href="bookmarkData.url" :target="`__blank${+new Date()}`"
-      class="group block decoration-none rounded-8px bg-light-400 hover:bg-bluegray-100 px-14px pt-8px pb-10px duration-200"
+      class="group block decoration-none rounded-8px bg-light-400 hover:bg-bluegray-100 px-13px pt-7px pb-9px duration-200 border border-solid border-transparent"
+      :class="{ '!border-red-300': bookmarkData.valid === false, '!bg-red-50': bookmarkData.valid === false }"
       @click="close"
     >
       <div class="flex text-gray-800 animate-duration-300" :class="{ 'animate-fade-in': animateEnable }">
@@ -120,9 +128,13 @@ function delayClose() {
         {{ bookmarkData.url }}
       </div>
     </a>
+    <div v-if="bookmarkData.valid === false" class="text-12px text-red pl-2 mb--10px">
+      *检测到该链接可能已失效
+    </div>
     <template #footer>
-      <div class="t-notification__detail flex items-center gap-16px px-4px">
+      <div class="t-notification__detail flex items-center gap-16px px-4px m-none">
         <div class="flex-1 text-12px text-gray-500 text-left">
+          <mingcute:loading-3-fill v-if="bookmarkData.valid === undefined" class="animate-spin inline vertical-sub" />
           创建于：{{ dayjs(bookmarkData.date).format('YYYY/MM/DD') }}
         </div>
         <t-link class="text-gray-500 !after:border-gray-500" @click="close">
@@ -148,9 +160,7 @@ function delayClose() {
   width: 100%;
 }
 .t-notification >>> .t-notification__content {
-  max-height: 75px;
-}
-.t-notification >>> .t-notification__detail {
-  margin-top: 10px;
+  max-height: none;
+  padding-bottom: 10px;
 }
 </style>

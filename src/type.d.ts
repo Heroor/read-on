@@ -12,6 +12,7 @@ export interface Bookmark {
   children?: Bookmark[]
   path?: string[]
   pushDate?: number
+  valid?: boolean
 }
 
 export {}

@@ -13,6 +13,7 @@ browser.bookmarks.getSubTree('1').then((res: any) => {
 
 const editJobs = ref<{ type: string, week?: string, day?: string, time: string }[]>([])
 const weekName = ['周一', '周二', '周三', '周四', '周五', '周六', '周末']
+const isDev = __DEV__
 
 function defaultData() {
   const weekDay = String(new Date().getDay())
@@ -105,6 +106,10 @@ function submit() {
   }).filter(item => !!item)
   sendMessage('schedule:update', scheduleJobs.value)
 }
+
+function requestBookmark() {
+  sendMessage('subscribe:request', null)
+}
 </script>
 
 <template>
@@ -136,6 +141,9 @@ function submit() {
               <span>添加订阅</span>
             </div>
           </div>
+          <t-button v-if="isDev" mt-3 @click="requestBookmark">
+            测试推送
+          </t-button>
         </div>
       </t-tab-panel>
       <t-tab-panel :value="2" label="订阅书签">

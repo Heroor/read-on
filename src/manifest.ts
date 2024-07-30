@@ -31,9 +31,7 @@ export async function getManifest() {
       128: './assets/logo.png',
     },
     permissions: [
-      'tabs',
       'storage',
-      'activeTab',
       'sidePanel',
       'bookmarks',
     ],

@@ -1,6 +1,6 @@
 import Cron from 'croner'
 import { onMessage, sendMessage } from 'webext-bridge/background'
-import type { ArgumentType } from 'unocss/index'
+import type { ProtocolMap } from 'webext-bridge'
 import type { Bookmark, Job } from '~/type'
 import { readScheduleJobs, remindTime, scheduleJobs, subscribeStorage } from '~/logic/storage'
 
@@ -93,13 +93,11 @@ async function pushSubscribe(bookmark?: Bookmark) {
   sendToCurrentTab('subscribe:push', data as any)
 }
 
-type MessageData = ArgumentType<typeof sendMessage>[1]
-
-async function sendToCurrentTab(messageID: string, data: MessageData) {
+async function sendToCurrentTab<K extends keyof ProtocolMap>(messageID: K, data: ProtocolMap[K]) {
   const tabs = await browser.tabs.query({ currentWindow: true, active: true })
   if (tabs.length) {
     console.log('Find active tab')
-    sendMessage(messageID, data, { context: 'content-script', tabId: tabs[0].id })
+    sendMessage(messageID, data as any, { context: 'content-script', tabId: tabs[0].id })
   }
   else {
     console.error('Can not find active tab')
@@ -122,6 +120,12 @@ function clearJobs() {
   jobs = []
 }
 
+async function checkLinkValid(link: string) {
+  return await fetch(link)
+    .then(response => response.ok)
+    .catch(() => false)
+}
+
 onMessage('schedule:update', ({ data }) => {
   startJobs(data)
 })
@@ -133,4 +137,14 @@ onMessage('subscribe:remind', ({ data }) => {
 onMessage('subscribe:refresh', ({ data }) => {
   excludeBmIds.add(data.id!)
   pushSubscribe()
+})
+
+onMessage('subscribe:request', () => {
+  excludeBmIds.clear()
+  pushSubscribe()
+})
+
+onMessage('subscribe:check', async ({ data }) => {
+  const valid = await checkLinkValid(data.url)
+  sendToCurrentTab('subscribe:valid', { ...data, valid })
 })
