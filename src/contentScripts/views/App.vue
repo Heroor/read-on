@@ -4,6 +4,7 @@ import { onMessage, sendMessage } from 'webext-bridge/content-script'
 import 'uno.css'
 import dayjs from 'dayjs'
 import type { Bookmark } from '~/type'
+import { pushHistories } from '~/logic/storage'
 
 const DURATION = 15
 const titles = [
@@ -55,11 +56,22 @@ onMessage('subscribe:push', async ({ data }) => {
   toggleAnimateEnable(true)
   toggle(true)
   delayClose()
+  saveHistory(data)
 })
 
 onMessage('subscribe:none', () => {
   toggleHasSubscribe(false)
 })
+
+function saveHistory(bookmark: Bookmark) {
+  if (pushHistories.value.length >= 50) {
+    pushHistories.value.pop()
+  }
+  pushHistories.value.unshift({
+    ...bookmark,
+    pushDate: +new Date(),
+  })
+}
 
 function delayClose() {
   clearTimeout(timer)

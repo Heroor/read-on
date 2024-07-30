@@ -75,7 +75,7 @@ async function getRandomBookmark() {
 }
 
 async function getBookmarkPath(node: Bookmark) {
-  const path = [node.title]
+  const path = []
   let parentId = node.parentId
   while (parentId && parentId !== '1') {
     const [parent] = await browser.bookmarks.get(parentId)

@@ -15,6 +15,7 @@ export default defineConfig({
       'overflow': 'hidden',
       'text-overflow': 'ellipsis',
       'white-space': 'nowrap',
+      'word-break': 'break-all',
     }],
     ['text-overflow-2-line', {
       'display': '-webkit-box',
@@ -22,6 +23,7 @@ export default defineConfig({
       'text-overflow': 'ellipsis',
       '-webkit-line-clamp': '2',
       '-webkit-box-orient': 'vertical',
+      'word-break': 'break-all',
     }],
   ],
 })

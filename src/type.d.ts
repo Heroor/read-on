@@ -11,6 +11,7 @@ export interface Bookmark {
   parentId?: string
   children?: Bookmark[]
   path?: string[]
+  pushDate?: number
 }
 
 export {}

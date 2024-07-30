@@ -2,6 +2,7 @@
 import { sendMessage } from 'webext-bridge/popup'
 import dayjs from 'dayjs'
 import MarkItem from './MarkItem.vue'
+import HistoryList from './History.vue'
 import { readScheduleJobs, scheduleJobs } from '~/logic/storage'
 
 const mark = ref<any>([])
@@ -110,8 +111,8 @@ function submit() {
   <main class="w-full px-4 pt-4px pb-5 text-gray-700 text-sm">
     <t-tabs :default-value="1" class="w-full">
       <t-tab-panel :value="1" label="定时推送">
-        <div>
-          <div class="pt-15px select-none">
+        <div class="pt-3">
+          <div class="form-label">
             推送时间：
           </div>
           <div v-for="(item, index) in editJobs" :key="index" class="flex items-center gap-1 mt-2.5">
@@ -136,23 +137,37 @@ function submit() {
             </div>
           </div>
         </div>
-        <!-- <div class="flex items-center gap-1 mt-3">
-          <div class="select-none">
-            稍后提醒间隔：
-          </div>
-          <t-input v-model="remindTime" max="60" min="1" :allow-input-over-limit="false" type="number" class="!w-95px" />
-          <t-select v-model="remindType" class="!w-95px" placeholder="周期">
-            <t-option key="sec" label="秒" value="sec" />
-            <t-option key="min" label="分钟" value="min" />
-            <t-option key="hour" label="小时" value="hour" />
-          </t-select>
-        </div> -->
       </t-tab-panel>
       <t-tab-panel :value="2" label="订阅书签">
-        <div class="pt-2">
-          <MarkItem :node="mark" />
-        </div>
+        <MarkItem class="pt-2" :node="mark" />
       </t-tab-panel>
+      <t-tab-panel :value="3" label="推送历史">
+        <HistoryList class="pt-2" />
+      </t-tab-panel>
+      <!-- <t-tab-panel :value="4" label="设置">
+        <div class="pt-2">
+          <div>
+            <div class="form-label">
+              推送时间：
+            </div>
+            <div>[x]跳过本次</div>
+            <div>[x]不感兴趣</div>
+            <div>[x]稍后提醒</div>
+            <div>[x]取消收藏</div>
+          </div>
+          <div class="flex items-center gap-1 mt-3">
+            <div class="form-label">
+              稍后提醒间隔：
+            </div>
+            <t-input v-model="remindTime" max="60" min="1" :allow-input-over-limit="false" type="number" class="!w-95px" />
+            <t-select v-model="remindType" class="!w-95px" placeholder="周期">
+              <t-option key="sec" label="秒" value="sec" />
+              <t-option key="min" label="分钟" value="min" />
+              <t-option key="hour" label="小时" value="hour" />
+            </t-select>
+          </div>
+        </div>
+      </t-tab-panel> -->
     </t-tabs>
     <hr class="my-4">
     <div class="text-center ">

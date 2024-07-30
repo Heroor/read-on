@@ -18,3 +18,7 @@ body,
     hover:opacity-100 hover:text-teal-600;
   font-size: 0.9em;
 }
+
+.form-label {
+  @apply select-none font-bold text-gray-700 text-sm;
+}
