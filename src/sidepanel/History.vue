@@ -22,20 +22,19 @@ function dateFormat(pushDate: number) {
 <template>
   <div>
     <a v-for="(item, index) in pushHistories" :key="item.id" :href="item.url" :target="`__blank${item.id}`" class="group decoration-none block cursor-pointer hover:bg-light-400 rounded-10px duration-200">
-      <div class="item p-14px border-t group-hover:border-color-transparent duration-200" :class="{ 'border-b': index === pushHistories.length - 1, 'border-t-none': !index }">
+      <div class="item px-14px py-10px pb-8px border-t group-hover:border-color-transparent duration-200" :class="{ 'border-b': index === pushHistories.length - 1, 'border-t-none': !index }">
         <div class="flex gap-1 text-gray-800 font-bold">
-          <div class="flex-1 text-overflow-ellipsis text-16px font-bold pr-2px">
+          <div class="flex-1 text-overflow-ellipsis text-14px font-bold pr-2px">
             {{ item.title }}
           </div>
-          <material-symbols-open-in-new-rounded class="h-22px text-gray-500" />
+          <material-symbols-open-in-new-rounded class="h-15px mt-3px text-gray-500" />
         </div>
-
-        <div class="text-gray-500 text-14px text-overflow-2-line group-hover:underline leading-16px mt-4px">
+        <div class="text-gray-500 text-13px text-overflow-2-line group-hover:underline leading-16px mt-1px">
           {{ item.url }}
         </div>
-        <div class="flex justify-between text-gray-400 mt-2 gap-4">
+        <div class="flex justify-between text-gray-400 mt-1 gap-4 text-12px">
           <div class="text-overflow-ellipsis">
-            <material-symbols:folder class="inline text-15px vertical--4px" opacity-70 />
+            <material-symbols:folder class="inline text-13px vertical--4px" opacity-70 />
             {{ item.path?.join('/') }}
           </div>
           <div>{{ dateFormat(item.pushDate!) }}</div>

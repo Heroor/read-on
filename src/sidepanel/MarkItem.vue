@@ -40,13 +40,13 @@ function unSubscribe(node: Bookmark) {
         paddingLeft: `${deep * 16 + 10}px`,
       }"
     >
-      <span class="flex-1">
-        <material-symbols:folder class="inline text-15px vertical--4px opacity-40" />
+      <span class="flex-1 text-13px">
+        <material-symbols:folder class="inline vertical-sub opacity-40" />
         {{ node.title }}
       </span>
       <span>
-        <t-link v-if="subscribeStorage.has(node.id)" theme="danger" @click="unSubscribe(node as Bookmark)">取消</t-link>
-        <t-link v-else theme="primary" @click="subscribe(node as Bookmark)">订阅</t-link>
+        <t-link v-if="subscribeStorage.has(node.id)" class="text-12px" theme="danger" @click="unSubscribe(node as Bookmark)">取消</t-link>
+        <t-link v-else class="text-12px" theme="primary" @click="subscribe(node as Bookmark)">订阅</t-link>
       </span>
     </div>
     <MarkItem v-for="child in node.children" :key="child.id" :node="child" :deep="deep + 1" />

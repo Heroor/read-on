@@ -178,7 +178,7 @@ function requestBookmark() {
       </t-tab-panel> -->
     </t-tabs>
     <hr class="my-4">
-    <div class="text-center ">
+    <div class="text-center py-14px">
       <a class="inline-block" href="https://github.com/Heroor/read-on">
         <mdi-github class="inline text-20px" />
         <div class="text-gray">
