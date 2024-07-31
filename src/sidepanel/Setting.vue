@@ -31,7 +31,7 @@ const remindTimes = [
       推送操作设置：
     </div>
     <div class="pt-1">
-      <t-checkbox-group v-model="configs" class="block pl-2">
+      <t-checkbox-group v-model="configs" class="pl-2 !flex-col !gap-0">
         <!-- <div class="mt-1">
           <t-checkbox value="uninteresting">
             不感兴趣

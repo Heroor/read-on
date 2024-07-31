@@ -153,7 +153,8 @@ function delayClose() {
                   正在检测链接的有效性
                 </template>
                 <template v-else-if="item.valid === false">
-                  *该链接可能已无法访问。请注意，您的本机网络或代理设置异常也可能导致链接失效
+                  <div>*该链接可能已无法访问。</div>
+                  <div>*请注意，您的本机网络或代理设置异常也可能导致链接失效</div>
                 </template>
               </div>
             </template>
