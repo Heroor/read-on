@@ -26,7 +26,7 @@ const { count: titleIndex, inc: incTitleIndex } = useCounter(0)
 const { count: duration, dec: decDuration, set: setDuration } = useCounter(DURATION.value)
 const [hasSubscribe, toggleHasSubscribe] = useToggle(true)
 const [animateEnable, toggleAnimateEnable] = useToggle(false)
-const tNotificationRef = ref(null)
+const tNotificationRefs = ref<any[]>([])
 const bookmarks = ref<Bookmark[]>([{
   id: '99999',
   title: 'Continue reading your bookmarks.',
@@ -125,7 +125,7 @@ function delayClose() {
       </div>
     </template>
     <p
-      v-for="item in bookmarks" :key="item.id"
+      v-for="(item, index) in bookmarks" :key="item.id"
       class="m0 p0 not-first:mt-8px"
     >
       <a
@@ -134,14 +134,14 @@ function delayClose() {
         :class="{ '!border-red-300': item.valid === false, '!bg-red-50': item.valid === false }"
         @click="close"
       >
-        <div ref="tNotificationRef" class="flex text-gray-800 animate-duration-300" :class="{ 'animate-fade-in': animateEnable }">
+        <div :ref="(el) => { tNotificationRefs[index] = el }" class="flex text-gray-800 animate-duration-300" :class="{ 'animate-fade-in': animateEnable }">
           <div class="flex-1 text-overflow-ellipsis font-bold pr-2px">
             {{ item.title }}
           </div>
           <material-symbols-open-in-new-rounded v-if="item.valid" class="h-22px text-gray-500" />
           <t-tooltip
             v-else
-            :attach="() => tNotificationRef!" placement="bottom-right"
+            :attach="() => tNotificationRefs[index]!" placement="bottom-right"
             :overlay-style="{ maxWidth: '280px' }"
             destroy-on-close :show-arrow="false"
           >
@@ -188,17 +188,17 @@ function delayClose() {
   --td-radius-medium: 12px;
   width: 400px;
 }
-.t-notification >>> .t-notification__main {
+.t-notification :deep(.t-notification__main) {
   min-width: 1px;
 }
-.t-notification >>> .t-notification__title {
+.t-notification :deep(.t-notification__title) {
   width: 100%;
 }
-.t-notification >>> .t-notification__content {
+.t-notification :deep(.t-notification__content) {
   max-height: none;
   padding-bottom: 10px;
 }
-.t-notification >>> .t-popup__content {
+.t-notification :deep(.t-popup__content) {
   --td-radius-medium: 8px;
   padding: 6px 12px;
 }

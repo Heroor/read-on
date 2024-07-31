@@ -72,7 +72,7 @@ const remindTimes = [
 </template>
 
 <style scoped>
-.setting >>> .t-checkbox__label {
+.setting :deep(.t-checkbox__label) {
   line-height: 32px !important;
 }
 </style>
