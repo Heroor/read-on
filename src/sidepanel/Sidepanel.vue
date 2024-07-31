@@ -3,6 +3,7 @@ import { sendMessage } from 'webext-bridge/popup'
 import dayjs from 'dayjs'
 import MarkItem from './MarkItem.vue'
 import HistoryList from './History.vue'
+import Setting from './Setting.vue'
 import { readScheduleJobs, scheduleJobs } from '~/logic/storage'
 
 const mark = ref<any>([])
@@ -141,9 +142,6 @@ function requestBookmark() {
               <span>添加订阅</span>
             </div>
           </div>
-          <t-button v-if="isDev" mt-3 @click="requestBookmark">
-            测试推送
-          </t-button>
         </div>
       </t-tab-panel>
       <t-tab-panel :value="2" label="订阅书签">
@@ -152,32 +150,14 @@ function requestBookmark() {
       <t-tab-panel :value="3" label="推送历史">
         <HistoryList class="pt-2" />
       </t-tab-panel>
-      <!-- <t-tab-panel :value="4" label="设置">
-        <div class="pt-2">
-          <div>
-            <div class="form-label">
-              推送时间：
-            </div>
-            <div>[x]跳过本次</div>
-            <div>[x]不感兴趣</div>
-            <div>[x]稍后提醒</div>
-            <div>[x]取消收藏</div>
-          </div>
-          <div class="flex items-center gap-1 mt-3">
-            <div class="form-label">
-              稍后提醒间隔：
-            </div>
-            <t-input v-model="remindTime" max="60" min="1" :allow-input-over-limit="false" type="number" class="!w-95px" />
-            <t-select v-model="remindType" class="!w-95px" placeholder="周期">
-              <t-option key="sec" label="秒" value="sec" />
-              <t-option key="min" label="分钟" value="min" />
-              <t-option key="hour" label="小时" value="hour" />
-            </t-select>
-          </div>
-        </div>
-      </t-tab-panel> -->
+      <t-tab-panel :value="4" label="设置">
+        <Setting class="pt-2" />
+      </t-tab-panel>
     </t-tabs>
     <hr class="my-4">
+    <t-button v-if="isDev" mt-3 @click="requestBookmark">
+      测试推送
+    </t-button>
     <div class="text-center py-14px">
       <a class="inline-block" href="https://github.com/Heroor/read-on">
         <mdi-github class="inline text-20px" />

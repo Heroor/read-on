@@ -17,6 +17,10 @@ function dateFormat(pushDate: number) {
   const format = y === ny && m === nm && d === nd ? 'HH:mm:ss' : 'YYYY/MM/DD HH:mm:ss'
   return date.format(format)
 }
+
+function clearAll() {
+  pushHistories.value.length = 0
+}
 </script>
 
 <template>
@@ -41,8 +45,11 @@ function dateFormat(pushDate: number) {
         </div>
       </div>
     </a>
-    <div class="pt-3 pl-3 text-xs text-gray-500">
+    <div class="flex justify-between pt-3 pl-3 text-xs text-gray-500">
       *只展示最近 50 条推送历史
+      <t-link theme="primary" @click="clearAll">
+        清空
+      </t-link>
     </div>
   </div>
 </template>

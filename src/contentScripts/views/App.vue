@@ -4,9 +4,10 @@ import { onMessage, sendMessage } from 'webext-bridge/content-script'
 import 'uno.css'
 import dayjs from 'dayjs'
 import type { Bookmark } from '~/type'
-import { pushHistories } from '~/logic/storage'
+import { configs, delayCloseTime, pushHistories } from '~/logic/storage'
 
-const DURATION = 15
+const DURATION = computed(() => delayCloseTime.value)
+const isDelayClose = computed(() => configs.value.includes('delayClose'))
 const titles = [
   '👀 是时候回顾一下啦',
   '📖 阅读时刻到',
@@ -22,22 +23,22 @@ const titles = [
 ].sort(() => Math.random() - 0.5)
 const [show, toggle] = useToggle(false)
 const { count: titleIndex, inc: incTitleIndex } = useCounter(0)
-const { count: duration, dec: decDuration, set: setDuration } = useCounter(DURATION)
+const { count: duration, dec: decDuration, set: setDuration } = useCounter(DURATION.value)
 const [hasSubscribe, toggleHasSubscribe] = useToggle(true)
 const [animateEnable, toggleAnimateEnable] = useToggle(false)
 const tNotificationRef = ref(null)
-const bookmarkData = ref<Bookmark>({
+const bookmarks = ref<Bookmark[]>([{
   id: '99999',
   title: 'Continue reading your bookmarks.',
   url: 'https://github.com/Heroor/read-on',
   date: 1722072498173,
   path: [],
-})
+}])
 let timer: any
 
 function remind() {
   close()
-  sendMessage('subscribe:remind', bookmarkData.value)
+  sendMessage('subscribe:remind', bookmarks.value)
 }
 
 function close() {
@@ -47,18 +48,20 @@ function close() {
 
 function refresh() {
   toggleAnimateEnable(false)
-  sendMessage('subscribe:refresh', bookmarkData.value)
+  sendMessage('subscribe:refresh', bookmarks.value)
 }
 
 onMessage('subscribe:push', async ({ data }) => {
-  bookmarkData.value = data
-  sendMessage('subscribe:check', data)
+  bookmarks.value = data
+  checkLinks(data)
   incTitleIndex()
   toggleHasSubscribe(true)
   toggleAnimateEnable(true)
   toggle(true)
-  delayClose()
   saveHistory(data)
+  if (isDelayClose.value) {
+    delayClose()
+  }
 })
 
 onMessage('subscribe:none', () => {
@@ -66,24 +69,32 @@ onMessage('subscribe:none', () => {
 })
 
 onMessage('subscribe:valid', ({ data }) => {
-  if (data.id === bookmarkData.value.id) {
-    bookmarkData.value.valid = data.valid
+  const target = bookmarks.value.find(item => item.id === data.id)
+  if (target) {
+    target.valid = data.valid
   }
 })
 
-function saveHistory(bookmark: Bookmark) {
-  if (pushHistories.value.length >= 50) {
-    pushHistories.value.pop()
-  }
-  pushHistories.value.unshift({
-    ...bookmark,
+function checkLinks(list: Bookmark[]) {
+  sendMessage('subscribe:check', list)
+}
+
+async function saveHistory(list: Bookmark[]) {
+  const maxHistoryLength = 50
+  const newList = list.map(item => ({
+    ...item,
     pushDate: +new Date(),
-  })
+  }),
+  )
+  const res = [...newList, ...pushHistories.value].slice(0, maxHistoryLength)
+  pushHistories.value.length = 0
+  await nextTick()
+  pushHistories.value = res
 }
 
 function delayClose() {
   clearTimeout(timer)
-  setDuration(DURATION)
+  setDuration(DURATION.value)
   const loop = () => {
     clearTimeout(timer)
     if (duration.value <= 0) {
@@ -113,50 +124,58 @@ function delayClose() {
         <span v-else class="text-12px font-normal text-gray-400 select-none">没有更多了</span>
       </div>
     </template>
-    <a
-      :href="bookmarkData.url" :target="`__blank${+new Date()}`"
-      class="group block decoration-none rounded-8px bg-light-400 hover:bg-bluegray-100 px-13px pt-7px pb-9px duration-200 border border-solid border-transparent"
-      :class="{ '!border-red-300': bookmarkData.valid === false, '!bg-red-50': bookmarkData.valid === false }"
-      @click="close"
+    <p
+      v-for="item in bookmarks" :key="item.id"
+      class="m0 p0 not-first:mt-8px"
     >
-      <div ref="tNotificationRef" class="flex text-gray-800 animate-duration-300" :class="{ 'animate-fade-in': animateEnable }">
-        <div class="flex-1 text-overflow-ellipsis font-bold pr-2px">
-          {{ bookmarkData.title }}
+      <a
+        :href="item.url" :target="`__blank${+new Date()}`"
+        class="group block decoration-none rounded-8px bg-light-400 hover:bg-bluegray-100 px-13px pt-7px pb-9px duration-200 border border-solid border-transparent"
+        :class="{ '!border-red-300': item.valid === false, '!bg-red-50': item.valid === false }"
+        @click="close"
+      >
+        <div ref="tNotificationRef" class="flex text-gray-800 animate-duration-300" :class="{ 'animate-fade-in': animateEnable }">
+          <div class="flex-1 text-overflow-ellipsis font-bold pr-2px">
+            {{ item.title }}
+          </div>
+          <material-symbols-open-in-new-rounded v-if="item.valid" class="h-22px text-gray-500" />
+          <t-tooltip
+            v-else
+            :attach="() => tNotificationRef!" placement="bottom-right"
+            :overlay-style="{ maxWidth: '280px' }"
+            destroy-on-close :show-arrow="false"
+          >
+            <nonicons:loading-16 v-if="item.valid === undefined" class="animate-spin h-22px text-gray-500" />
+            <material-symbols-error v-else-if="item.valid === false" class="text-red h-22px" />
+            <template #content>
+              <div class="text-12px text-left">
+                <template v-if="item.valid === undefined">
+                  正在检测链接的有效性
+                </template>
+                <template v-else-if="item.valid === false">
+                  *该链接可能已无法访问。请注意，您的本机网络或代理设置异常也可能导致链接失效
+                </template>
+              </div>
+            </template>
+          </t-tooltip>
         </div>
-        <material-symbols-open-in-new-rounded v-if="bookmarkData.valid" class="h-22px text-gray-500" />
-        <t-tooltip
-          v-else
-          :attach="() => tNotificationRef!" placement="bottom-right"
-          :overlay-style="{ maxWidth: '280px' }"
-          destroy-on-close :show-arrow="false"
-        >
-          <nonicons:loading-16 v-if="bookmarkData.valid === undefined" class="animate-spin h-22px text-gray-500" />
-          <material-symbols-error v-else-if="bookmarkData.valid === false" class="text-red h-22px" />
-          <template #content>
-            <div class="text-12px text-left">
-              <template v-if="bookmarkData.valid === undefined">
-                正在检测链接的有效性
-              </template>
-              <template v-else-if="bookmarkData.valid === false">
-                *该链接可能已无法访问。请注意，您的本机网络或代理设置异常也可能导致链接失效
-              </template>
-            </div>
-          </template>
-        </t-tooltip>
-      </div>
-      <div class="text-gray-500 text-overflow-2-line group-hover:decoration-underline leading-16px mt-2px animate-duration-300" :class="{ 'animate-fade-in': animateEnable }">
-        {{ bookmarkData.url }}
-      </div>
-    </a>
+        <div class="text-gray-500 text-overflow-2-line group-hover:decoration-underline leading-16px mt-2px animate-duration-300" :class="{ 'animate-fade-in': animateEnable }">
+          {{ item.url }}
+        </div>
+      </a>
+    </p>
+
     <template #footer>
       <div class="t-notification__detail flex items-center gap-16px px-4px m-none">
         <div class="flex-1 text-12px text-gray-500 text-left">
-          创建于：{{ dayjs(bookmarkData.date).format('YYYY/MM/DD') }}
+          <template v-if="bookmarks.length === 1">
+            创建于：{{ dayjs(bookmarks[0].date).format('YYYY/MM/DD') }}
+          </template>
         </div>
         <t-link class="text-gray-500 !after:border-gray-500" @click="close">
-          取消({{ duration }}s)
+          取消<span v-if="isDelayClose">({{ duration }}s)</span>
         </t-link>
-        <t-link theme="primary" @click="remind">
+        <t-link v-if="configs.includes('remind')" theme="primary" @click="remind">
           稍后提醒
         </t-link>
       </div>

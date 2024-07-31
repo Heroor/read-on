@@ -2,9 +2,10 @@ import Cron from 'croner'
 import { onMessage, sendMessage } from 'webext-bridge/background'
 import type { ProtocolMap } from 'webext-bridge'
 import type { Bookmark, Job } from '~/type'
-import { readScheduleJobs, remindTime, scheduleJobs, subscribeStorage } from '~/logic/storage'
+import { pushCount, readScheduleJobs, remindTime, scheduleJobs, subscribeStorage } from '~/logic/storage'
 
 let jobs: Cron[] = []
+const nodes = new Set<string>()
 const excludeBmIds = new Set<string>()
 
 // only on dev mode
@@ -26,14 +27,13 @@ init()
 async function init() {
   await readScheduleJobs()
   startJobs(scheduleJobs.value)
+  initAllBookmarkIds()
   // For test
   // console.log('For test')
   // getRandomBookmark()
 }
 
-async function getRandomBookmark() {
-  const nodes = new Set<string>()
-
+async function initAllBookmarkIds() {
   for (const sub of subscribeStorage.value) {
     const tree = await browser.bookmarks.getSubTree(sub)
     loop(tree[0])
@@ -52,6 +52,9 @@ async function getRandomBookmark() {
       })
     }
   }
+}
+
+async function getRandomBookmark({ count = pushCount.value } = {}) {
   const newNodes = new Set(nodes)
   excludeBmIds.forEach((id) => {
     newNodes.delete(id)
@@ -60,18 +63,32 @@ async function getRandomBookmark() {
     sendToCurrentTab('subscribe:none', null)
     return null
   }
-  const index = Math.random() * newNodes.size >> 0
-  const id = Array.from(newNodes)[index]
-  const [node] = await browser.bookmarks.get(id)
-  const path = await getBookmarkPath(node)
+  const newCount = Math.min(newNodes.size, count)
+  const randoms = uniqueRandoms(newCount, 0, newNodes.size)
+  const ids = Array.from(newNodes)
+  const res = randoms.map<Promise<Bookmark>>(async (index) => {
+    const [node] = await browser.bookmarks.get(ids[index])
+    const path = await getBookmarkPath(node)
+    return {
+      id: node.id,
+      title: node.title,
+      url: node.url,
+      date: node.dateAdded,
+      path,
+    }
+  })
 
-  return {
-    id: node.id,
-    title: node.title,
-    url: node.url,
-    date: node.dateAdded,
-    path,
+  return Promise.all(res)
+}
+
+function uniqueRandoms(count: number, min: number, max: number) {
+  const uniqueNumbers = new Set<number>()
+  while (uniqueNumbers.size < count) {
+    const randomNumber = Math.floor(Math.random() * (max - min)) + min
+    uniqueNumbers.add(randomNumber)
   }
+
+  return Array.from(uniqueNumbers)
 }
 
 async function getBookmarkPath(node: Bookmark) {
@@ -85,12 +102,12 @@ async function getBookmarkPath(node: Bookmark) {
   return path
 }
 
-async function pushSubscribe(bookmark?: Bookmark) {
-  const data = bookmark || await getRandomBookmark()
+async function pushSubscribe(bookmarks?: Bookmark[]) {
+  const data = bookmarks || await getRandomBookmark()
   if (!data) {
     return
   }
-  sendToCurrentTab('subscribe:push', data as any)
+  sendToCurrentTab('subscribe:push', data)
 }
 
 async function sendToCurrentTab<K extends keyof ProtocolMap>(messageID: K, data: ProtocolMap[K]) {
@@ -126,8 +143,9 @@ async function checkLinkValid(link: string) {
     .catch(() => false)
 }
 
-onMessage('schedule:update', ({ data }) => {
+onMessage('schedule:update', async ({ data }) => {
   startJobs(data)
+  await initAllBookmarkIds()
 })
 
 onMessage('subscribe:remind', ({ data }) => {
@@ -135,7 +153,7 @@ onMessage('subscribe:remind', ({ data }) => {
 })
 
 onMessage('subscribe:refresh', ({ data }) => {
-  excludeBmIds.add(data.id!)
+  data.forEach(v => excludeBmIds.add(v.id!))
   pushSubscribe()
 })
 
@@ -145,6 +163,8 @@ onMessage('subscribe:request', () => {
 })
 
 onMessage('subscribe:check', async ({ data }) => {
-  const valid = await checkLinkValid(data.url)
-  sendToCurrentTab('subscribe:valid', { ...data, valid })
+  data.forEach(async (item) => {
+    const valid = await checkLinkValid(item.url)
+    sendToCurrentTab('subscribe:valid', { ...item, valid })
+  })
 })
