@@ -121,7 +121,7 @@ function clearJobs() {
 }
 
 async function checkLinkValid(link: string) {
-  return await fetch(link)
+  return await fetch(link, { method: 'HEAD' })
     .then(response => response.ok)
     .catch(() => false)
 }

@@ -25,6 +25,7 @@ const { count: titleIndex, inc: incTitleIndex } = useCounter(0)
 const { count: duration, dec: decDuration, set: setDuration } = useCounter(DURATION)
 const [hasSubscribe, toggleHasSubscribe] = useToggle(true)
 const [animateEnable, toggleAnimateEnable] = useToggle(false)
+const tNotificationRef = ref(null)
 const bookmarkData = ref<Bookmark>({
   id: '99999',
   title: 'Continue reading your bookmarks.',
@@ -118,23 +119,38 @@ function delayClose() {
       :class="{ '!border-red-300': bookmarkData.valid === false, '!bg-red-50': bookmarkData.valid === false }"
       @click="close"
     >
-      <div class="flex text-gray-800 animate-duration-300" :class="{ 'animate-fade-in': animateEnable }">
+      <div ref="tNotificationRef" class="flex text-gray-800 animate-duration-300" :class="{ 'animate-fade-in': animateEnable }">
         <div class="flex-1 text-overflow-ellipsis font-bold pr-2px">
           {{ bookmarkData.title }}
         </div>
-        <material-symbols-open-in-new-rounded class="h-22px" />
+        <material-symbols-open-in-new-rounded v-if="bookmarkData.valid" class="h-22px text-gray-500" />
+        <t-tooltip
+          v-else
+          :attach="() => tNotificationRef!" placement="bottom-right"
+          :overlay-style="{ maxWidth: '280px' }"
+          destroy-on-close :show-arrow="false"
+        >
+          <nonicons:loading-16 v-if="bookmarkData.valid === undefined" class="animate-spin h-22px text-gray-500" />
+          <material-symbols-error v-else-if="bookmarkData.valid === false" class="text-red h-22px" />
+          <template #content>
+            <div class="text-12px text-left">
+              <template v-if="bookmarkData.valid === undefined">
+                正在检测链接的有效性
+              </template>
+              <template v-else-if="bookmarkData.valid === false">
+                *该链接可能已无法访问。请注意，您的本机网络或代理设置异常也可能导致链接失效
+              </template>
+            </div>
+          </template>
+        </t-tooltip>
       </div>
       <div class="text-gray-500 text-overflow-2-line group-hover:decoration-underline leading-16px mt-2px animate-duration-300" :class="{ 'animate-fade-in': animateEnable }">
         {{ bookmarkData.url }}
       </div>
     </a>
-    <div v-if="bookmarkData.valid === false" class="text-12px text-red pl-2 mb--10px">
-      *检测到该链接可能已失效
-    </div>
     <template #footer>
       <div class="t-notification__detail flex items-center gap-16px px-4px m-none">
         <div class="flex-1 text-12px text-gray-500 text-left">
-          <mingcute:loading-3-fill v-if="bookmarkData.valid === undefined" class="animate-spin inline vertical-sub" />
           创建于：{{ dayjs(bookmarkData.date).format('YYYY/MM/DD') }}
         </div>
         <t-link class="text-gray-500 !after:border-gray-500" @click="close">
@@ -162,5 +178,9 @@ function delayClose() {
 .t-notification >>> .t-notification__content {
   max-height: none;
   padding-bottom: 10px;
+}
+.t-notification >>> .t-popup__content {
+  --td-radius-medium: 8px;
+  padding: 6px 12px;
 }
 </style>
