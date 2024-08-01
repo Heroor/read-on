@@ -1,4 +1,4 @@
-![](https://cdn.jsdelivr.net/gh/Heroor/read-on@latest/docs/banner.png)
+![](https://cdn.jsdelivr.net/gh/Heroor/read-on@main/docs/banner.png)
 
 # Read on
 
@@ -14,7 +14,7 @@
 - **Refresh Reminder Content**: Update and refresh the content of your reminders.
 - **Remind to Read Later**: Set reminders for later reading.
 
-![](https://cdn.jsdelivr.net/gh/Heroor/read-on@latest/docs/screenshot.png)
+![](https://cdn.jsdelivr.net/gh/Heroor/read-on@main/docs/screenshot.png)
 
 ## Installation
 
@@ -45,14 +45,10 @@ pnpm run build
 
 # Usage
 
-1.	Open the Extension:
-   Click on the extension icon in the browser toolbar.
-2.	Subscribe to Folders:
-   Select the bookmark folders you want to subscribe to.
-3.	Set Reminder Time:
-   Choose the time intervals for receiving reading reminders.
-4.	Enjoy Random Bookmarks:
-   Receive and read random bookmarks based on your settings.
+1. Open the Extension: Click on the extension icon in the browser toolbar.
+2. Subscribe to Folders: Select the bookmark folders you want to subscribe to.
+3. Set Reminder Time: Choose the time intervals for receiving reading reminders.
+4. Enjoy Random Bookmarks: Receive and read random bookmarks based on your settings.
 
 ## Support
 
