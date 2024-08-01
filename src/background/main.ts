@@ -33,9 +33,10 @@ async function init() {
   // getRandomBookmark()
 }
 
-async function initAllBookmarkIds() {
+async function initAllBookmarkIds(subscribes?: string[]) {
   nodes.clear()
-  for (const sub of subscribeStorage.value) {
+  const idSet = subscribes ? new Set(subscribes) : subscribeStorage.value
+  for (const sub of idSet) {
     const tree = await browser.bookmarks.getSubTree(sub)
     loop(tree[0])
   }
@@ -46,7 +47,7 @@ async function initAllBookmarkIds() {
     }
     else {
       tree.children?.forEach((c) => {
-        if (subscribeStorage.value.has(c.id!)) {
+        if (idSet.has(c.id!)) {
           return
         }
         loop(c)
@@ -149,8 +150,8 @@ onMessage('schedule:update', async ({ data }) => {
   await initAllBookmarkIds()
 })
 
-onMessage('subscribe:update', async () => {
-  await initAllBookmarkIds()
+onMessage('subscribe:update', async ({ data }) => {
+  await initAllBookmarkIds(data)
 })
 
 onMessage('subscribe:remind', ({ data }) => {

@@ -21,9 +21,7 @@ function subscribe(node: Bookmark) {
       child.children && subscribe(child)
     })
   }
-  setTimeout(() => {
-    sendMessage('subscribe:update', null)
-  }, 0)
+  sendMessage('subscribe:update', Array.from(subscribeStorage.value))
 }
 
 function unSubscribe(node: Bookmark) {
@@ -33,9 +31,7 @@ function unSubscribe(node: Bookmark) {
       child.children && unSubscribe(child)
     })
   }
-  setTimeout(() => {
-    sendMessage('subscribe:update', null)
-  }, 0)
+  sendMessage('subscribe:update', Array.from(subscribeStorage.value))
 }
 </script>
 
