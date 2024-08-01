@@ -34,6 +34,7 @@ async function init() {
 }
 
 async function initAllBookmarkIds() {
+  nodes.clear()
   for (const sub of subscribeStorage.value) {
     const tree = await browser.bookmarks.getSubTree(sub)
     loop(tree[0])
@@ -145,6 +146,10 @@ async function checkLinkValid(link: string) {
 
 onMessage('schedule:update', async ({ data }) => {
   startJobs(data)
+  await initAllBookmarkIds()
+})
+
+onMessage('subscribe:update', async () => {
   await initAllBookmarkIds()
 })
 

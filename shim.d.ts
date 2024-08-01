@@ -13,5 +13,6 @@ declare module 'webext-bridge' {
     'subscribe:refresh': Bookmark[]
     'subscribe:check': Bookmark[]
     'subscribe:valid': Bookmark
+    'subscribe:update': null
   }
 }

@@ -35,7 +35,6 @@ export async function getManifest() {
       'sidePanel',
       'bookmarks',
     ],
-    host_permissions: ['*://*/*'],
     content_scripts: [
       {
         matches: [

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { sendMessage } from 'webext-bridge/options'
 import { subscribeStorage } from '~/logic/storage'
 import type { Bookmark } from '~/type'
 
@@ -20,6 +21,9 @@ function subscribe(node: Bookmark) {
       child.children && subscribe(child)
     })
   }
+  setTimeout(() => {
+    sendMessage('subscribe:update', null)
+  }, 0)
 }
 
 function unSubscribe(node: Bookmark) {
@@ -29,6 +33,9 @@ function unSubscribe(node: Bookmark) {
       child.children && unSubscribe(child)
     })
   }
+  setTimeout(() => {
+    sendMessage('subscribe:update', null)
+  }, 0)
 }
 </script>
 
