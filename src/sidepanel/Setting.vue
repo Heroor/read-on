@@ -64,7 +64,7 @@ const remindTimes = [
       <div class="lh-32px pl-2 mt-1">
         <span>推送条数：</span>
         <t-select v-model="pushCount" class="inline-block !w-95px" placeholder="间隔">
-          <t-option v-for="item in 5" :key="item" :label="`${item}条`" :value="item" />
+          <t-option v-for="item in 5" :key="item" :label="`${item} 条`" :value="item" />
         </t-select>
       </div>
     </div>

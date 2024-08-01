@@ -139,7 +139,7 @@ function requestBookmark() {
               <t-option v-for="m in 7" :key="m" :label="weekName[m - 1]" :value="`${m}`" />
             </t-select>
             <t-select v-if="item.type === 'month'" v-model="item.day" class="!w-95px inline-block" @change="submit()">
-              <t-option v-for="m in 31" :key="m" :label="`${m}日`" :value="`${m}`" />
+              <t-option v-for="m in 31" :key="m" :label="`${m} 日`" :value="`${m}`" />
             </t-select>
             <t-time-picker v-if="item.type" v-model="item.time" placeholder="时间" class="!w-95px inline-block" format="HH:mm" :steps2="[1, 5]" @change="submit()" />
           </div>
