@@ -29,10 +29,11 @@ const [animateEnable, toggleAnimateEnable] = useToggle(false)
 const tNotificationRefs = ref<any[]>([])
 const bookmarks = ref<Bookmark[]>([{
   id: '99999',
-  title: 'Continue reading your bookmarks.',
+  title: 'Remind to read your bookmarks.',
   url: 'https://github.com/Heroor/read-on',
-  date: 1722072498173,
+  date: +new Date(),
   path: [],
+  valid: true,
 }])
 let timer: any
 
@@ -124,47 +125,43 @@ function delayClose() {
         <span v-else class="text-12px font-normal text-gray-400 select-none">没有更多了</span>
       </div>
     </template>
-    <p
+    <a
       v-for="(item, index) in bookmarks" :key="item.id"
-      class="m0 p0 not-first:mt-8px"
+      :href="item.url" :target="`__blank${+new Date()}`"
+      class="group block decoration-none rounded-8px bg-light-400 hover:bg-bluegray-100 pl-13px pr-10px pt-7px pb-9px duration-200 border border-solid border-transparent not-first:mt-8px"
+      :class="{ '!border-red-300': item.valid === false, '!bg-red-50': item.valid === false }"
+      @click="close"
     >
-      <a
-        :href="item.url" :target="`__blank${+new Date()}`"
-        class="group block decoration-none rounded-8px bg-light-400 hover:bg-bluegray-100 px-13px pt-7px pb-9px duration-200 border border-solid border-transparent"
-        :class="{ '!border-red-300': item.valid === false, '!bg-red-50': item.valid === false }"
-        @click="close"
-      >
-        <div :ref="(el) => { tNotificationRefs[index] = el }" class="flex text-gray-800 animate-duration-300" :class="{ 'animate-fade-in': animateEnable }">
-          <div class="flex-1 text-overflow-ellipsis font-bold pr-2px">
-            {{ item.title }}
-          </div>
-          <material-symbols-open-in-new-rounded v-if="item.valid" class="h-22px text-gray-500" />
-          <t-tooltip
-            v-else
-            :attach="() => tNotificationRefs[index]!" placement="bottom-right"
-            :overlay-style="{ maxWidth: '280px' }"
-            destroy-on-close :show-arrow="false"
-          >
-            <nonicons:loading-16 v-if="item.valid === undefined" class="animate-spin h-22px text-gray-500" />
-            <material-symbols-error v-else-if="item.valid === false" class="text-red h-22px" />
-            <template #content>
-              <div class="text-12px text-left">
-                <template v-if="item.valid === undefined">
-                  正在检测链接的有效性
-                </template>
-                <template v-else-if="item.valid === false">
-                  <div>*该链接可能已无法访问。</div>
-                  <div>*请注意，您的本机网络或代理设置异常也可能导致链接失效。</div>
-                </template>
-              </div>
-            </template>
-          </t-tooltip>
+      <div :ref="(el) => { tNotificationRefs[index] = el }" class="flex text-gray-800 animate-duration-300" :class="{ 'animate-fade-in': animateEnable }">
+        <div class="flex-1 text-overflow-ellipsis font-bold pr-2px">
+          {{ item.title }}
         </div>
-        <div class="text-gray-500 text-overflow-2-line group-hover:decoration-underline leading-16px mt-2px animate-duration-300" :class="{ 'animate-fade-in': animateEnable }">
-          {{ item.url }}
-        </div>
-      </a>
-    </p>
+        <material-symbols-open-in-new-rounded v-if="item.valid" class="h-22px text-gray-500" />
+        <t-tooltip
+          v-else
+          :attach="() => tNotificationRefs[index]!" placement="bottom-right"
+          :overlay-style="{ maxWidth: '280px' }"
+          destroy-on-close :show-arrow="false"
+        >
+          <nonicons:loading-16 v-if="item.valid === undefined" class="animate-spin h-22px text-gray-500" />
+          <material-symbols-error v-else-if="item.valid === false" class="text-red h-22px" />
+          <template #content>
+            <div class="text-12px text-left">
+              <template v-if="item.valid === undefined">
+                正在检测链接的有效性
+              </template>
+              <template v-else-if="item.valid === false">
+                <div>*该链接可能已无法访问。</div>
+                <div>*请注意，您的本机网络或代理设置异常也可能导致链接失效。</div>
+              </template>
+            </div>
+          </template>
+        </t-tooltip>
+      </div>
+      <div class="text-gray-500 text-overflow-2-line group-hover:decoration-underline leading-16px mt-2px animate-duration-300" :class="{ 'animate-fade-in': animateEnable }">
+        {{ item.url }}
+      </div>
+    </a>
 
     <template #footer>
       <div class="t-notification__detail flex items-center gap-16px px-4px m-none">

@@ -4,7 +4,7 @@ import dayjs from 'dayjs'
 import MarkItem from './MarkItem.vue'
 import HistoryList from './History.vue'
 import Setting from './Setting.vue'
-import { readScheduleJobs, scheduleJobs } from '~/logic/storage'
+import { readScheduleJobs, scheduleJobs, subscribeStorage } from '~/logic/storage'
 
 const mark = ref<any>([])
 
@@ -12,6 +12,7 @@ browser.bookmarks.getSubTree('1').then((res: any) => {
   mark.value = res[0]
 })
 
+const curTab = ref(1)
 const editJobs = ref<{ type: string, week?: string, day?: string, time: string }[]>([])
 const weekName = ['周一', '周二', '周三', '周四', '周五', '周六', '周末']
 const isDev = __DEV__
@@ -115,9 +116,15 @@ function requestBookmark() {
 
 <template>
   <main class="w-full px-4 pt-4px pb-5 text-gray-700 text-sm">
-    <t-tabs :default-value="1" class="w-full">
+    <t-tabs v-model:value="curTab" class="w-full">
       <t-tab-panel :value="1" label="定时推送">
         <div class="pt-3">
+          <div v-if="!subscribeStorage.size" class="mb-2 py-2.5 px-3.5 bg-[rgb(246,186,66,0.2)] rounded-6px text-14px">
+            <mingcute:warning-fill class="text-[#f6bb42] inline vertical-sub text-15px" />
+            别忘了订阅书签哦！<t-link theme="primary" @click="curTab = 2">
+              订阅
+            </t-link>
+          </div>
           <div class="form-label">
             推送时间：
           </div>

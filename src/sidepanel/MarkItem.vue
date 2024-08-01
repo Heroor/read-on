@@ -48,8 +48,8 @@ function unSubscribe(node: Bookmark) {
       }"
     >
       <span class="flex-1 text-13px">
-        <material-symbols:folder class="inline vertical-sub opacity-40" />
-        {{ node.title }}
+        <material-symbols:folder class="inline vertical-sub opacity-40 mr-4px" />
+        <span>{{ node.title }}</span>
       </span>
       <span>
         <t-link v-if="subscribeStorage.has(node.id)" class="text-12px" theme="danger" @click="unSubscribe(node as Bookmark)">取消</t-link>
