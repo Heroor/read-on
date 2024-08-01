@@ -6,8 +6,6 @@
 
 **Read on** is a browser extension that helps you keep track of your bookmarks by turning them into a subscription list. You can subscribe to multiple bookmark folders and receive random reading reminders at times you choose.
 
-![](https://cdn.jsdelivr.net/gh/Heroor/read-on@latest/docs/screenshot.png)
-
 ## Features
 
 - **Bookmark Subscription List**: Manage and view your bookmark folders as a subscription list.
@@ -16,7 +14,15 @@
 - **Refresh Reminder Content**: Update and refresh the content of your reminders.
 - **Remind to Read Later**: Set reminders for later reading.
 
+![](https://cdn.jsdelivr.net/gh/Heroor/read-on@latest/docs/screenshot.png)
+
 ## Installation
+
+### A. From Chrome Web Store
+
+Open Chrome and go to the [Chrome Web Store](https://chromewebstore.google.com/detail/read-on/dgdjckipghbipabffacjpjkgjhhfnbpk), Click "Add to Chrome" to install the extension.
+
+### B. Manual Installation
 
 1. Clone and Build the Extension:
 
