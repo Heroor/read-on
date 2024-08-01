@@ -114,11 +114,11 @@ async function pushSubscribe(bookmarks?: Bookmark[]) {
 async function sendToCurrentTab<K extends keyof ProtocolMap>(messageID: K, data: ProtocolMap[K]) {
   const tabs = await browser.tabs.query({ currentWindow: true, active: true })
   if (tabs.length) {
-    console.log('Find active tab')
+    console.log(`${messageID}: Find active tab`)
     sendMessage(messageID, data as any, { context: 'content-script', tabId: tabs[0].id })
   }
   else {
-    console.error('Can not find active tab')
+    console.error(`${messageID}: Can not find active tab`)
   }
 }
 

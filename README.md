@@ -2,45 +2,45 @@
 
 # Read on
 
-Your bookmarks will never be dusty again!
+**Never let your bookmarks gather dust again!**
 
-Read on is a web extension that pulls all the folders from your bookmarks and displays a list of subscriptions, with this extension you can subscribe to multiple bookmark folders and have a random bookmark pushed for you when it reaches the subscription time you set.
+**Read on** is a browser extension that helps you keep track of your bookmarks by turning them into a subscription list. You can subscribe to multiple bookmark folders and receive random reading reminders at times you choose.
 
-## Feature
+Features
 
-- Subscribe to your bookmark list.
-- Set push time.
-- Randomly push bookmarks in your favorites.
-- Refresh pushed bookmarks.
-- Remind later.
+- **Bookmark Subscription List**: Manage and view your bookmark folders as a subscription list.
+- **Set Reminder Time**: Customize when you receive reminders.
+- **Randomly Push Bookmarks**: Get a random bookmark from your folders at reminder times.
+- **Refresh Reminder Content**: Update and refresh the content of your reminders.
+- **Remind to Read Later**: Set reminders for later reading.
 
 ## Screenshot
 
 ![](https://cdn.jsdelivr.net/gh/Heroor/read-on@latest/docs/screenshot.png)
 
-## Install
+## Installation
 
-1. Clone and Build:
+1. Clone and Build the Extension:
 
 ```bash
-# Clone
+# Clone the repository
 git clone https://github.com/Heroor/read-on.git
 
-# Install
+# Install dependencies
 pnpm install
 
-# Build
+# Build the extension
 pnpm run build
 ```
 
-2. Open Chrome and go to the 'chrome://extensions/' page.
+2. Load the Extension in Chrome:
 
-3. Turn on the Developer Mode switch.
-
-4. Click the "Load unzipped extension" button and select the extension directory of the repository.
+   - Open Chrome and navigate to chrome://extensions/.
+   - Enable Developer mode.
+   - Click Load unpacked and select the extension directory from the cloned repository.
 
 ## License
 
-License MIT
+MIT License
 
 © 2024-present, [Bener](https://github.com/Heroor)
