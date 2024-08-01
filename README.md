@@ -6,6 +6,14 @@
 
 **Read on** is a browser extension that helps you keep track of your bookmarks by turning them into a subscription list. You can subscribe to multiple bookmark folders and receive random reading reminders at times you choose.
 
+### Privacy Notice
+
+**Read on** does not collect, store, or share any personal information from users. All data processed by this extension is not transmitted to any external servers or third parties.
+
+### 隐私声明
+
+**Read on** 不会收集、存储或共享任何用户的个人信息。该扩展处理的所有数据均不会传输到任何外部服务器或第三方。
+
 ## Features
 
 - **Bookmark Subscription List**: Manage and view your bookmark folders as a subscription list.
