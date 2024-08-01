@@ -140,9 +140,26 @@ function clearJobs() {
 }
 
 async function checkLinkValid(link: string) {
-  return await fetch(link, { method: 'HEAD' })
-    .then(response => response.ok)
-    .catch(() => false)
+  return fetch(link, { method: 'HEAD' })
+    .then((response) => {
+      if (response.ok) {
+        return true
+      }
+      else {
+        return Promise.reject(new Error(`HEAD request not ok: ${response.status}`))
+      }
+    })
+    .catch((err) => {
+      console.error(err)
+      return fetch(link, { method: 'GET' })
+        .then((response) => {
+          return response.ok
+        })
+        .catch((err) => {
+          console.error('HEAD request not ok', err)
+          return false
+        })
+    })
 }
 
 onMessage('schedule:update', async ({ data }) => {
