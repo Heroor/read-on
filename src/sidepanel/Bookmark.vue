@@ -16,6 +16,10 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  root: {
+    type: Boolean,
+    default: true,
+  },
 })
 
 const isExpand = ref(props.expand)
@@ -44,10 +48,10 @@ const hasChildren = computed(() => props.node.children?.some((n: any) => n.child
 </script>
 
 <template>
-  <div v-if="node && node.children" :class="{ '!pl-32px': !hasChildren }">
+  <div v-if="node && node.children" :class="{ 'pl-32px': !hasChildren, '!pl-16px': root && !hasChildren }">
     <div
       class="flex items-center leading-7 rounded hover:bg-light pl-4px pr-10px py-2px text-gray-800 cursor-pointer"
-      :class="{ '!pl-10px': !hasChildren }"
+      :class="{ '!pl-12px': !hasChildren }"
       @click="hasChildren && (isExpand = !isExpand)"
     >
       <material-symbols:arrow-right-rounded v-if="hasChildren" :class="{ 'rotate-90': isExpand }" class="text-20px opacity-40" />
@@ -61,7 +65,7 @@ const hasChildren = computed(() => props.node.children?.some((n: any) => n.child
       </span>
     </div>
     <template v-if="isExpand">
-      <Bookmark v-for="child in node.children" :key="child.id" :node="child" class="pl-16px" />
+      <Bookmark v-for="child in node.children" :key="child.id" :node="child" class="pl-16px" :root="false" />
     </template>
   </div>
 </template>
