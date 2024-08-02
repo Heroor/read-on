@@ -1,15 +1,15 @@
 <script setup lang="ts">
 import { sendMessage } from 'webext-bridge/popup'
 import dayjs from 'dayjs'
-import MarkItem from './MarkItem.vue'
+import Bookmark from './Bookmark.vue'
 import HistoryList from './History.vue'
 import Setting from './Setting.vue'
 import { readScheduleJobs, scheduleJobs, subscribeStorage } from '~/logic/storage'
 
-const mark = ref<any>([])
+const bookmarkTree = ref<any>([])
 
-browser.bookmarks.getSubTree(__FIREFOX__ ? 'toolbar_____' : '1').then((res: any) => {
-  mark.value = res[0]
+browser.bookmarks.getSubTree(__FIREFOX__ ? 'root________' : '0').then(([res]: any) => {
+  bookmarkTree.value = res?.children || []
 })
 
 const curTab = ref(1)
@@ -152,7 +152,9 @@ function requestBookmark() {
         </div>
       </t-tab-panel>
       <t-tab-panel :value="2" label="订阅书签">
-        <MarkItem class="pt-2" :node="mark" />
+        <div class="pt-2">
+          <Bookmark v-for="item in bookmarkTree" :key="item.id" :node="item" expand />
+        </div>
       </t-tab-panel>
       <t-tab-panel :value="3" label="推送历史">
         <HistoryList class="pt-2" />

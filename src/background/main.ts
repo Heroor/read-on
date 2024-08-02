@@ -148,22 +148,13 @@ function clearJobs() {
 
 async function checkLinkValid(link: string) {
   return fetch(link, { method: 'HEAD' })
-    .then((response) => {
-      if (response.ok) {
-        return true
-      }
-      else {
-        return Promise.reject(new Error(`HEAD request not ok: ${response.status}`))
-      }
-    })
+    .then(response => response.ok || Promise.reject(new Error(`HEAD request not ok: ${response.status}`)))
     .catch((err) => {
       console.error(err)
       return fetch(link, { method: 'GET' })
-        .then((response) => {
-          return response.ok
-        })
+        .then(response => response.ok)
         .catch((err) => {
-          console.error('HEAD request not ok', err)
+          console.error('GET request not ok', err)
           return false
         })
     })
