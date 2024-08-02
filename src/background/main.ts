@@ -16,9 +16,16 @@ if (import.meta.hot) {
   import('./contentScriptHMR')
 }
 
-browser.sidePanel
-  .setPanelBehavior({ openPanelOnActionClick: true })
-  .catch(console.error)
+if (__FIREFOX__) {
+  // browser.action.onClicked.addListener(() => {
+  //   browser.sidebarAction.open()
+  // })
+}
+else {
+  browser.sidePanel
+    .setPanelBehavior({ openPanelOnActionClick: true })
+    .catch(console.error)
+}
 
 browser.runtime.onInstalled.addListener(init)
 

@@ -64,6 +64,10 @@ export async function getManifest() {
     manifest.sidebar_action = {
       default_panel: 'dist/sidepanel/index.html',
     }
+    manifest.browser_action = {
+      default_icon: 'assets/logo.png',
+      default_title: 'Open Sidebar',
+    }
   }
   else {
     // the sidebar_action does not work for chromium based

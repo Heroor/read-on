@@ -10,7 +10,7 @@ import Components from 'unplugin-vue-components/vite'
 import AutoImport from 'unplugin-auto-import/vite'
 import UnoCSS from 'unocss/vite'
 import { TDesignResolver } from 'unplugin-vue-components/resolvers'
-import { isDev, port, r } from './scripts/utils'
+import { isDev, isFirefox, port, r } from './scripts/utils'
 import packageJson from './package.json'
 
 export const sharedConfig: UserConfig = {
@@ -23,6 +23,7 @@ export const sharedConfig: UserConfig = {
   define: {
     __DEV__: isDev,
     __NAME__: JSON.stringify(packageJson.name),
+    __FIREFOX__: isFirefox,
   },
   plugins: [
     Vue(),

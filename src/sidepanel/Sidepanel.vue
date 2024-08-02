@@ -8,7 +8,7 @@ import { readScheduleJobs, scheduleJobs, subscribeStorage } from '~/logic/storag
 
 const mark = ref<any>([])
 
-browser.bookmarks.getSubTree('1').then((res: any) => {
+browser.bookmarks.getSubTree(__FIREFOX__ ? 'toolbar_____' : '1').then((res: any) => {
   mark.value = res[0]
 })
 
