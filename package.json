@@ -1,7 +1,7 @@
 {
   "name": "read-on",
   "displayName": "Read on",
-  "version": "0.5.6",
+  "version": "0.5.7",
   "private": true,
   "packageManager": "pnpm@9.4.0",
   "description": "Remind to read your bookmarks",
