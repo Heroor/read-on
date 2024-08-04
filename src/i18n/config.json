@@ -1,0 +1,21 @@
+{
+  "languages": [{
+    "code": "en",
+    "label": "English",
+    "UI": {
+      "timePicker": {
+        "now": "Now",
+        "confirm": "OK"
+      }
+    }
+  }, {
+    "code": "zh",
+    "label": "中文",
+    "UI": {
+      "timePicker": {
+        "now": "此刻",
+        "confirm": "确定"
+      }
+    }
+  }]
+}

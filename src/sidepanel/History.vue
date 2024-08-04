@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import dayjs from 'dayjs'
+import { translate as t } from '../i18n'
 import { pushHistories } from '~/logic/storage'
 
 function dateFormat(pushDate: number) {
   if (!pushDate) {
-    return '未知日期'
+    return 'N/A'
   }
   const date = dayjs(pushDate)
   const y = date.year()
@@ -46,9 +47,9 @@ function clearAll() {
       </div>
     </a>
     <div class="flex justify-between pt-3 pl-3 text-xs text-gray-500">
-      *只展示最近 50 条推送历史
+      *{{ t('recentHistory') }}
       <t-link theme="primary" @click="clearAll">
-        清空
+        {{ t('clearAll') }}
       </t-link>
     </div>
   </div>

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { sendMessage } from 'webext-bridge/options'
+import { translate as t } from '../i18n'
 import { subscribeStorage } from '~/logic/storage'
 import type { Bookmark } from '~/type'
 
@@ -60,8 +61,8 @@ const hasChildren = computed(() => props.node.children?.some((n: any) => n.child
         {{ node.title }}
       </span>
       <span>
-        <t-link v-if="subscribeStorage.has(node.id)" class="text-12px" theme="danger" @click.stop="unSubscribe(node as Bookmark)">取消</t-link>
-        <t-link v-else class="text-12px" theme="primary" @click.stop="subscribe(node as Bookmark)">订阅</t-link>
+        <t-link v-if="subscribeStorage.has(node.id)" class="text-12px" theme="danger" @click.stop="unSubscribe(node as Bookmark)">{{ t('cancel') }}</t-link>
+        <t-link v-else class="text-12px" theme="primary" @click.stop="subscribe(node as Bookmark)">{{ t('subscribe') }}</t-link>
       </span>
     </div>
     <template v-if="isExpand">

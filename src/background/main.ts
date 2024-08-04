@@ -1,6 +1,7 @@
 import Cron from 'croner'
 import { onMessage, sendMessage } from 'webext-bridge/background'
 import type { ProtocolMap } from 'webext-bridge'
+import { initTranslations } from '~/i18n'
 import type { Bookmark, Job } from '~/type'
 import { pushCount, readScheduleJobs, remindTime, scheduleJobs, subscribeStorage } from '~/logic/storage'
 
@@ -35,9 +36,7 @@ async function init() {
   await readScheduleJobs()
   startJobs(scheduleJobs.value)
   initAllBookmarkIds()
-  // For test
-  // console.log('For test')
-  // getRandomBookmark()
+  initTranslations(browser.i18n.getUILanguage().substring(0, 2))
 }
 
 async function initAllBookmarkIds(subscribes?: string[]) {

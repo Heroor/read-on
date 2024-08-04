@@ -3,24 +3,13 @@ import { useCounter, useToggle } from '@vueuse/core'
 import { onMessage, sendMessage } from 'webext-bridge/content-script'
 import 'uno.css'
 import dayjs from 'dayjs'
+import { translate as t } from '~/i18n'
 import type { Bookmark } from '~/type'
 import { configs, delayCloseTime, pushHistories } from '~/logic/storage'
 
 const DURATION = computed(() => delayCloseTime.value)
 const isDelayClose = computed(() => configs.value.includes('delayClose'))
-const titles = [
-  '👀 是时候回顾一下啦',
-  '📖 阅读时刻到',
-  '🌟 快看我找到了什么',
-  '📚 别忘记了学习哦',
-  '🧗 来一场冒险吗',
-  '💎 翻开昔日的宝藏吧',
-  '🔍 探索一个未知的秘密',
-  '🎉 让我们重温美好时光',
-  '🗝️ 解锁过去的故事吧',
-  '🧩 拼凑过去的记忆吧',
-  '🚀 准备好飞向新的旅途了吗',
-].sort(() => Math.random() - 0.5)
+const titles = computed(() => (t('messageTitles') || []).sort(() => Math.random() - 0.5))
 const [show, toggle] = useToggle(false)
 const { count: titleIndex, inc: incTitleIndex } = useCounter(0)
 const { count: duration, dec: decDuration, set: setDuration } = useCounter(DURATION.value)
@@ -122,7 +111,7 @@ function delayClose() {
           {{ titles[titleIndex % titles.length] }}
         </div>
         <material-symbols-sync v-if="hasSubscribe" class="text-gray-500 hover:text-gray-700 active:text-gray-500 cursor-pointer select-none p-2px" @click="refresh" />
-        <span v-else class="text-12px font-normal text-gray-400 select-none">没有更多了</span>
+        <span v-else class="text-12px font-normal text-gray-400 select-none">{{ t('noMore') }}</span>
       </div>
     </template>
     <a
@@ -148,11 +137,11 @@ function delayClose() {
           <template #content>
             <div class="text-12px text-left">
               <template v-if="item.valid === undefined">
-                正在检测链接的有效性
+                {{ t('checkingLinkValidity') }}
               </template>
               <template v-else-if="item.valid === false">
-                <div>*该链接可能已无法访问。</div>
-                <div>*请注意，您的本机网络或代理设置异常也可能导致链接失效。</div>
+                <div>*{{ t('linkInvalid') }}</div>
+                <div>*{{ t('networkIssue') }}</div>
               </template>
             </div>
           </template>
@@ -167,14 +156,14 @@ function delayClose() {
       <div class="t-notification__detail flex items-center gap-16px px-4px m-none">
         <div class="flex-1 text-12px text-gray-500 text-left">
           <template v-if="bookmarks.length === 1">
-            创建于：{{ dayjs(bookmarks[0].date).format('YYYY/MM/DD') }}
+            {{ t('createdOn') }}{{ dayjs(bookmarks[0].date).format('YYYY/MM/DD') }}
           </template>
         </div>
         <t-link class="text-gray-500 !after:border-gray-500" @click="close">
-          取消<span v-if="isDelayClose">({{ duration }}s)</span>
+          {{ t('cancel') }}<span v-if="isDelayClose">({{ duration }}s)</span>
         </t-link>
         <t-link v-if="configs.includes('remind')" theme="primary" @click="remind">
-          稍后提醒
+          {{ t('remindLater') }}
         </t-link>
       </div>
     </template>
