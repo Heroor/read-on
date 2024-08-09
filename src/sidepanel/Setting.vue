@@ -18,7 +18,7 @@ function changeLanguage(data: any) {
     </div>
     <div class="pt-1">
       <t-checkbox-group v-model="configs" class="pl-2 !flex-col !gap-0">
-        <div class="flex items-center mt-1">
+        <div class="flex items-center mt-2">
           <t-checkbox value="delayClose">
             {{ t('autoCloseMessage') }}
           </t-checkbox>
@@ -27,7 +27,7 @@ function changeLanguage(data: any) {
             <t-option v-for="item in delayCloseTimes" :key="item.value" :label="item.label" :value="item.value" />
           </t-select>
         </div>
-        <div class="flex items-center mt-1">
+        <div class="flex items-center mt-2">
           <t-checkbox value="remind">
             {{ t('remindLater') }}
           </t-checkbox>
@@ -37,13 +37,13 @@ function changeLanguage(data: any) {
           </t-select>
         </div>
       </t-checkbox-group>
-      <div class="lh-32px pl-2 mt-1">
+      <div class="lh-32px pl-2 mt-2">
         <span class="mr-2">{{ t('pushCount') }}</span>
         <t-select v-model="pushCount" class="inline-block !w-80px">
           <t-option v-for="item in 5" :key="item" :label="`${item}`" :value="item" />
         </t-select>
       </div>
-      <div class="lh-32px pl-2 mt-1">
+      <div class="lh-32px pl-2 mt-2">
         <span class="mr-2">{{ t('language') }}</span>
         <t-select :value="language" class="inline-block !w-95px" @change="changeLanguage">
           <t-option v-for="item in languageConfig.languages" :key="item.code" :label="`${item.label}`" :value="item.code" />
