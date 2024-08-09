@@ -6,7 +6,7 @@ import type { Bookmark, Job } from '~/type'
 import { pushCount, readScheduleJobs, remindTime, scheduleJobs, subscribeStorage } from '~/logic/storage'
 
 let jobs: Cron[] = []
-const nodes = new Set<string>()
+const bmIds = new Set<string>()
 const excludeBmIds = new Set<string>()
 
 // only on dev mode
@@ -40,19 +40,21 @@ async function init() {
 }
 
 async function initAllBookmarkIds(subscribes?: string[]) {
-  nodes.clear()
+  bmIds.clear()
   const idSet = subscribes ? new Set(subscribes) : subscribeStorage.value
   for (const sub of idSet) {
-    const tree = await browser.bookmarks.getSubTree(sub)
-    loop(tree[0])
+    const tree = await browser.bookmarks.getSubTree(sub).catch(() => {
+      subscribeStorage.value.delete(sub)
+    })
+    tree && loop(tree[0])
   }
 
-  function loop(tree: Bookmark) {
-    if (tree.url) {
-      nodes.add(tree.id!)
+  function loop(node: Bookmark) {
+    if (node.url) {
+      bmIds.add(node.id!)
     }
     else {
-      tree.children?.forEach((c) => {
+      node.children?.forEach((c) => {
         if (idSet.has(c.id!)) {
           return
         }
@@ -63,40 +65,38 @@ async function initAllBookmarkIds(subscribes?: string[]) {
 }
 
 async function getRandomBookmark({ count = pushCount.value } = {}) {
-  const newNodes = new Set(nodes)
+  const availableBmIds = new Set(bmIds)
   excludeBmIds.forEach((id) => {
-    newNodes.delete(id)
+    availableBmIds.delete(id)
   })
-  if (!newNodes.size) {
+  if (!availableBmIds.size) {
     sendToCurrentTab('subscribe:none', null)
     return null
   }
-  const newCount = Math.min(newNodes.size, count)
-  const randoms = uniqueRandoms(newCount, 0, newNodes.size)
-  const ids = Array.from(newNodes)
-  const res = randoms.map<Promise<Bookmark>>(async (index) => {
-    const [node] = await browser.bookmarks.get(ids[index])
-    const path = await getBookmarkPath(node)
-    return {
-      id: node.id,
-      title: node.title,
-      url: node.url,
-      date: node.dateAdded,
-      path,
+
+  const results: Bookmark[] = []
+  count = Math.min(availableBmIds.size, count)
+  while (results.length < count && availableBmIds.size) {
+    const randomIndex = Math.floor(Math.random() * availableBmIds.size)
+    const randomId = Array.from(availableBmIds)[randomIndex]
+    try {
+      const [node] = await browser.bookmarks.get(randomId)
+      const path = await getBookmarkPath(node)
+      results.push({
+        id: node.id,
+        title: node.title,
+        url: node.url,
+        date: node.dateAdded,
+        path,
+      })
+      availableBmIds.delete(randomId)
     }
-  })
-
-  return Promise.all(res)
-}
-
-function uniqueRandoms(count: number, min: number, max: number) {
-  const uniqueNumbers = new Set<number>()
-  while (uniqueNumbers.size < count) {
-    const randomNumber = Math.floor(Math.random() * (max - min)) + min
-    uniqueNumbers.add(randomNumber)
+    catch (err) {
+      console.warn(`Failed to get bookmark with ID ${randomId}: ${err}`)
+      availableBmIds.delete(randomId)
+    }
   }
-
-  return Array.from(uniqueNumbers)
+  return results
 }
 
 async function getBookmarkPath(node: Bookmark) {
@@ -125,7 +125,7 @@ async function sendToCurrentTab<K extends keyof ProtocolMap>(messageID: K, data:
     sendMessage(messageID, data as any, { context: 'content-script', tabId: tabs[0].id })
   }
   else {
-    console.error(`${messageID}: Can not find active tab`)
+    console.warn(`${messageID}: Can not find active tab`)
   }
 }
 
@@ -149,11 +149,11 @@ async function checkLinkValid(link: string) {
   return fetch(link, { method: 'HEAD' })
     .then(response => response.ok || Promise.reject(new Error(`HEAD request not ok: ${response.status}`)))
     .catch((err) => {
-      console.error(err)
+      console.warn(err)
       return fetch(link, { method: 'GET' })
         .then(response => response.ok)
         .catch((err) => {
-          console.error('GET request not ok', err)
+          console.warn('GET request not ok', err)
           return false
         })
     })

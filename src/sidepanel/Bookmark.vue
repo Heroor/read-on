@@ -25,23 +25,29 @@ const props = defineProps({
 
 const isExpand = ref(props.expand)
 
-function subscribe(node: Bookmark) {
-  subscribeStorage.value.add(node.id!)
-  if (node.children) {
-    node.children.forEach((child) => {
-      child.children && subscribe(child)
-    })
+function subscribe(data: Bookmark) {
+  const loop = (node: Bookmark) => {
+    subscribeStorage.value.add(node.id!)
+    if (node.children) {
+      node.children.forEach((child) => {
+        child.children && loop(child)
+      })
+    }
   }
+  loop(data)
   sendMessage('subscribe:update', Array.from(subscribeStorage.value))
 }
 
-function unSubscribe(node: Bookmark) {
-  subscribeStorage.value.delete(node.id!)
-  if (node.children) {
-    node.children.forEach((child) => {
-      child.children && unSubscribe(child)
-    })
+function unSubscribe(data: Bookmark) {
+  const loop = (node: Bookmark) => {
+    subscribeStorage.value.delete(node.id!)
+    if (node.children) {
+      node.children.forEach((child) => {
+        child.children && loop(child)
+      })
+    }
   }
+  loop(data)
   sendMessage('subscribe:update', Array.from(subscribeStorage.value))
 }
 
